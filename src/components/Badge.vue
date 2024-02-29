@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from "vue"
 
 export default defineComponent({
   name: 'Badge',
@@ -16,7 +16,7 @@ export default defineComponent({
   props: {
     icon: String
   }
-});
+})
 </script>
 
 <style lang="scss">

@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
-import GameView from "../views/GameView.vue";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
+import HomeView from "../views/HomeView.vue"
+import GameView from "../views/GameView.vue"
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -9,14 +9,16 @@ const routes: Array<RouteRecordRaw> = [
     component: HomeView,
   },
   {
-    path: "/party/:gameID",
+    path: "/party/:roomID",
     name: "party",
     component: GameView,
+    props: true,
   },
   {
-    path: "/:gameID",
-    name: "game",
+    path: "/:roomID",
+    name: "random",
     component: GameView,
+    props: true,
   },
   {
     path: "/about",
@@ -27,11 +29,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
   },
-];
+]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
-});
+})
 
-export default router;
+export default router

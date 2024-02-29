@@ -7,7 +7,7 @@ const vuexLocal = new VuexPersistence({
 
 export default createStore({
   state: {
-    userID: "nope",
+    userID: "",
   },
   mutations: {
     SET_ID(state, data) {
