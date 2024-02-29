@@ -1,0 +1,167 @@
+@use 'variables' as v;
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700&display=swap');
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    padding: 0 24px;
+    padding-top: 24px;
+    background-color: v.$background-color;
+    text-align: center;
+    color: v.$text-color;
+    box-sizing: border-box;
+}
+#app {
+    height: 100%;
+}
+* {
+    font-family: 'Lato', sans-serif;
+}
+
+.content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.page {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(black, 0.25);
+    border-radius: 60px 60px 0 0;
+    overflow: hidden;
+    flex-grow: 1;
+    width: 100%;
+
+    > div {
+        overflow: scroll;
+        padding: 0 60px;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    position: relative;
+    overflow: visible;
+    transition: height 0.2s ease-in-out, width 0.2s ease-in-out;
+    transition-delay: 1ms;
+
+    user-select: none; // chrome and Opera
+    -moz-user-select: none; // Firefox
+    -webkit-text-select: none; // IOS Safari
+    -webkit-user-select: none; // Safari
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+div {
+    display: block;
+    //border: 1px solid pink;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    display:table;
+    width: fit-content;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+// Header
+h1 {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+// Heading Text
+h4 {
+    font-size: 16px;
+    font-weight: 300;
+}
+
+// Textblock
+p, b, input {
+    font-size: 16px;
+    line-height: 1.4;
+    font-family: /*'Exo 2'*/ 'Lato', sans-serif;
+}
+
+.uppercase {
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 600;
+}
+.note {
+    opacity: 0.6;
+}
+
+.highlighted {
+    color: v.$primary-color;
+}
+
+a {
+    text-decoration: none;
+    display: inline;
+    color: v.$text-color;
+    margin: 0;
+}
+
+img, svg, path {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+
+    &.actionable:hover {
+        opacity: 0.8;
+        cursor: pointer;
+    }
+}
+
+svg {
+    aspect-ratio: 1 / 1;
+
+    &.checkbox {
+        position: relative;
+        margin-right: 8px;
+    }
+
+    &.close {
+        position: absolute;
+        right: 16px;
+    }
+}
+
+/* --- ANIMATION --- */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition-property: opacity;
+  transition-duration: 0.2s;
+}
+
+.fade-enter-active {
+  transition-delay: 0.2s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
