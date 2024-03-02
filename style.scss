@@ -97,6 +97,12 @@ path {
   height: 1em;
 }
 
+span {
+  &.accent-primary {
+    color: v.$primary-color;
+  }
+}
+
 h1,
 h2,
 h3,

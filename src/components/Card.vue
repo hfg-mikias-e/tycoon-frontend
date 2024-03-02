@@ -1,5 +1,5 @@
 <template>
-  <transition name="pop" appear>
+  <transition name="pop" mode="out-in" appear>
     <Button class="cardButton" :disabled="cardDisabled">
       <img class="card" :src="require('../assets/cards/' + cardImage + '.png')" />
     </Button>

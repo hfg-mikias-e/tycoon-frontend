@@ -1,5 +1,5 @@
 <template>
-  <transition name="short" appear>
+  <transition mode="out-in" name="short" appear>
     <div class="gameStatus" :class="{ permanent: permanent }">
       <icon id="statusIcon" :icon="eventIcon" />
       <h1>{{ event }}</h1>

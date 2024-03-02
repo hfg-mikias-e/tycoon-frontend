@@ -1,9 +1,12 @@
 <template>
-  <p>{{ connected }} {{ allowed }} {{ $store.state.userID }}</p>
-  <Header v-if="allowed"/>
+  <div id="test">
+    {{ clients }}
+  </div>
+
+  <Header v-if="allowed" />
   <router-view v-slot="{ Component }">
-    <Transition name="fade">
-      <component :is="Component" />
+    <Transition name="fade" mode="out-in">
+      <component :is="Component" :clients="clients" />
     </Transition>
   </router-view>
 </template>
@@ -25,6 +28,9 @@ export default defineComponent({
     return {
       connected: false,
       allowed: false,
+
+      userID: "",
+      clients: [] as object[]
     }
   },
 
@@ -43,8 +49,13 @@ export default defineComponent({
       this.allowed = true
     },
 
+    updateUsers(clients: Array<object>) {
+      this.clients = clients
+      console.log(this.clients[0])
+    },
+
     redirectBack() {
-      console.log("AAA")
+      console.log("redirectBack")
       this.$router.push("/")
     },
 
@@ -59,12 +70,23 @@ export default defineComponent({
 @use "variables" as v;
 @import "./style.scss";
 
+#test {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  padding: v.$viewport-padding;
+
+  >div:last-child {
+    height: 100%;
+  }
 }
 
 nav {

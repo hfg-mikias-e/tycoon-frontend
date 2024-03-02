@@ -1,7 +1,7 @@
 <template>
-  <div id="homeScreen">
-    <div class="menu">
-      <h1 id="desc">
+  <div id="home">
+    <div>
+      <h1>
         Play Tycoon online with other people or create your own party to play
         with friends!
       </h1>
@@ -13,6 +13,9 @@
           join a random game
         </Button>
       </div>
+    </div>
+    <div>
+
     </div>
   </div>
 </template>

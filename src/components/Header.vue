@@ -1,17 +1,17 @@
 <template>
-  <div class="header">
-    <div class="logo">
-      <div :style="{ height: welcome.height + 'px', opacity: welcome.opacity }">
+  <div id="header">
+    <div id="logo">
+      <div :class="{ hideLogo: !homeScreen }">
         <h4>Welcome to</h4>
       </div>
-      <div id="logo">
+      <div>
         <h2 :class="{ fixedFont: !homeScreen, glow: homeScreen }">TYCOON</h2>
         <h3 :class="{ fixedFont: !homeScreen, glow: homeScreen }">LINE</h3>
       </div>
     </div>
-    <div class="buttons">
+    <div id="startButtons">
       <Button :buttonClass="'secondary'" :buttonIcon="'fa-book-bookmark'">Rules</Button>
-      <Button :buttonClass="'secondary'" :buttonIcon="'fa-user'">{{ username }}</Button>
+      <Button :buttonClass="'secondary'" :buttonIcon="'fa-user'">{{ $store.state.username }}</Button>
     </div>
   </div>
 </template>
@@ -26,21 +26,9 @@ export default defineComponent({
     Button
   },
 
-  props: {
-    username: String
-  },
-
   computed: {
     homeScreen(): boolean {
       return this.$route.name === "home";
-    },
-
-    welcome() {
-      if (this.homeScreen) {
-        return { height: 20, opacity: 1 }
-      } else {
-        return { height: 0, opacity: 0 }
-      }
     }
   }
 })
@@ -49,62 +37,68 @@ export default defineComponent({
 <style lang="scss">
 @use 'variables' as v;
 
-.header {
-  z-index: 1;
-  display: flex;
+#header {
   justify-content: space-between;
+  flex-direction: row;
   width: 100%;
-  padding: 0 60px;
-  height: 48px;
+  padding-bottom: calc(1.25*v.$viewport-padding);
 
-  >div {
-    display: flex;
-    flex-grow: 1;
+  // TYCOON
+  h2 {
+    font-size: 52px;
+    line-height: 0.8;
+    letter-spacing: -4px;
+
+    &.fixedFont {
+      transform: scale(0.75) translate(-15%, 0);
+      text-shadow: unset;
+    }
   }
-}
 
-// TYCOON
-h2 {
-  font-size: 52px;
-  line-height: 0.8;
-  letter-spacing: -4px;
-  z-index: 3;
-}
+  // LINE
+  h3 {
+    font-size: 24px;
+    letter-spacing: -2px;
+    line-height: 0.8;
 
-// LINE
-h3 {
-  font-size: 24px;
-  letter-spacing: -2px;
-  line-height: 0.8;
-}
+    &.fixedFont {
+      transform: scale(0.75) translate(-155%, -15%);
+      text-shadow: unset;
+    }
+  }
 
-.logo {
-  flex-direction: column;
-  justify-content: center;
+  h2, h3 {
+    text-shadow: 0 0 20px rgba(#FFD8D8, 0.4);
+  }
 
   #logo {
-    align-items: flex-end;
-    gap: 2px;
+    flex-direction: column;
+    justify-content: center;
+
+    >div:first-child {
+      height: 1.25em;
+
+      &.hideLogo {
+        opacity: 0;
+        height: 0;
+      }
+    }
+
+    >div:last-child {
+      gap: 0.25em;
+      flex-direction: row;
+      align-items: flex-end;
+    }
+
+    * {
+      transition: all 0.75s ease-in-out;
+    }
   }
 
-  * {
-    display: flex;
-    transition: all 0.75s ease-in-out;
-    margin: 0;
-    padding: 0;
+  #startButtons {
+    justify-content: flex-end;
+    flex-direction: row;
+    gap: 1.5em;
   }
-}
-
-.buttons {
-  justify-content: flex-end;
-  gap: 20px;
-}
-
-.fixedFont {
-  transform: scale(0.4) translate(0);
-}
-
-.glow {
-  text-shadow: 0 0 20px rgba(#FFD8D8, 0.4);
 }
 </style>
