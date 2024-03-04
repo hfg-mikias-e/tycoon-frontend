@@ -19,7 +19,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @use 'variables' as v;
 
 .badge {

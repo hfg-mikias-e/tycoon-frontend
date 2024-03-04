@@ -11,7 +11,7 @@
     </div>
     <div id="startButtons">
       <Button :buttonClass="'secondary'" :buttonIcon="'fa-book-bookmark'">Rules</Button>
-      <Button :buttonClass="'secondary'" :buttonIcon="'fa-user'">{{ $store.state.username }}</Button>
+      <Button :buttonClass="'secondary'" :buttonIcon="'fa-user'">{{ username }}</Button>
     </div>
   </div>
 </template>
@@ -21,9 +21,13 @@ import { defineComponent } from "vue";
 import Button from '@/components/Button.vue'
 
 export default defineComponent({
-  name: 'Header',
+  name: "Header",
   components: {
     Button
+  },
+
+  props: {
+    username: String
   },
 
   computed: {
@@ -34,7 +38,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @use 'variables' as v;
 
 #header {

@@ -14,42 +14,58 @@
         </Button>
       </div>
     </div>
-    <div>
-
-    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue';
 import Button from "@/components/Button.vue"
 
 export default defineComponent({
   name: "HomeView",
   components: {
-    Button,
+    Button
   },
 
   sockets: {
-    connect() {
-      console.log("socket connected")
-    },
-
     joinRoom(room: Array<string>) {
       const roomID = room[0]
       const roomType = room[1]
       this.$router.push({ name: roomType, params: { roomID } })
-    },
+    }
   },
 
   methods: {
     joinGame(roomType: string) {
       this.$socket.emit("findGame", roomType)
-    },
+    }
   }
 })
+
+/*
+export default {
+  setup() {
+    const router = useRouter()
+
+    socket.on("joinRoom", (room: Array<string>) => {
+      const roomID = room[0]
+      const roomType = room[1]
+      router.push({ name: roomType, params: { roomID } })
+    })
+
+    function joinGame(roomType: string) {
+      //socket.emit("findGame", roomType)
+    }
+
+    return {
+      Button,
+      joinGame
+    }
+  }
+}
+*/
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @use "variables" as v;
 </style>

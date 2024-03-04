@@ -1,9 +1,9 @@
 <template>
   <div id="test">
     {{ clients }}
+    {{ $store.state.userID }}
   </div>
-
-  <Header v-if="allowed" />
+  <Header v-if="allowed" :username="clients?.find(index => index.id === $store.state.userID).name" />
   <router-view v-slot="{ Component }">
     <Transition name="fade" mode="out-in">
       <component :is="Component" :clients="clients" />
@@ -12,16 +12,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import Button from "@/components/Button.vue"
-import Header from "@/components/Header.vue"
+import { defineComponent } from "vue";
 import { v4 as uuidv4 } from "uuid"
+import Header from "@/components/Header.vue"
+
+interface Client {
+  id: string,
+  socket: string,
+  name: string
+}
 
 export default defineComponent({
-  name: "HomeView",
+  name: "App",
   components: {
-    Button,
-    Header,
+    Header
   },
 
   data() {
@@ -29,14 +33,14 @@ export default defineComponent({
       connected: false,
       allowed: false,
 
-      userID: "",
-      clients: [] as object[]
+      clients: [] as Client[]
     }
   },
 
   sockets: {
     async connect() {
       this.connected = true
+      console.log("connected.")
 
       if (!this.$store.state.userID) {
         await this.$store.dispatch("setID", uuidv4())
@@ -49,9 +53,9 @@ export default defineComponent({
       this.allowed = true
     },
 
-    updateUsers(clients: Array<object>) {
+    updateUsers(clients: Array<Client>) {
+      console.log(clients)
       this.clients = clients
-      console.log(this.clients[0])
     },
 
     redirectBack() {
@@ -60,9 +64,57 @@ export default defineComponent({
     },
 
     disconnect() {
+      this.connected = false;
       console.log("disconnected.")
     }
   },
+
+  /*
+    setup() {
+      const router = useRouter()
+      const store = useStore()
+  
+      const connected = ref(false)
+      const allowed = ref(false)
+      const clients = ref([] as Client[])
+  
+      socket.on("connect", async () => {
+        connected.value = true;
+        console.log("connected.")
+  
+        if (!store.state.userID) {
+          await store.dispatch("setID", uuidv4())
+        }
+  
+        socket.emit("connectUser", store.state.userID)
+      });
+  
+      socket.on("allowUser", () => {
+        allowed.value = true
+      });
+  
+      socket.on("updateUsers", (allUsers) => {
+        clients.value = allUsers
+      });
+  
+      socket.on("redirectBack", () => {
+        console.log("redirectBack")
+        router.push("/")
+      });
+  
+      socket.on("disconnect", () => {
+        connected.value = false;
+        console.log("disconnected.")
+      });
+  
+      return {
+        Header,
+        clients,
+        allowed,
+        store
+      }
+    }
+  */
 })
 </script>
 

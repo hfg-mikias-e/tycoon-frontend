@@ -9,15 +9,21 @@
 import { defineComponent } from "vue"
 
 export default defineComponent({
+  name: "Button",
   props: {
     buttonClass: String,
-    buttonIcon: String,
-    disabled: Boolean,
+    buttonIcon: String
+  },
+
+  setup(props) {
+    return {
+      props
+    }
   }
-});
+})
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @use "variables" as v;
 
 button {

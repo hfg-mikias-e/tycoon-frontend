@@ -1,8 +1,7 @@
 <template>
   <div id="game">
     <TransitionGroup name="fade" mode="out-in">
-      <div v-if="started">ÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖHÖH</div>
-      <template v-if="!started">
+      <div v-if="!started">
         <div>
           <h1>Game <span class="accent-primary">#{{ roomID }}</span></h1>
           <p v-if="$route.name === 'party'">
@@ -26,20 +25,22 @@
           <div id="lobbyCard" :class="{ ready: player.ready }" v-for="(player, index) in players" :key="index">
             {{ player.id }}
             {{ player.ready }}
-            {{ clients?.find((index: any) => index.id === player.id).name }}
+            {{ playerName(player.id) }}
           </div>
           <div id="lobbyCard" class="empty" v-for="index in (maxPlayers - players.length)" :key="index">waiting for
             another
             player ...</div>
         </div>
-      </template>
+      </div>
+      <Play :lobby="players.map(index => ({ id: index.id, name: playerName(index.id) }))" v-else />
     </TransitionGroup>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 import Button from "@/components/Button.vue"
+import Play from "@/components/Play.vue"
 
 interface Player {
   id: string,
@@ -47,9 +48,10 @@ interface Player {
 }
 
 export default defineComponent({
-  name: "HomeView",
+  name: "GameView",
   components: {
-    Button
+    Button,
+    Play
   },
 
   props: {
@@ -81,6 +83,11 @@ export default defineComponent({
         }
       }, 1000)
     },
+
+    playerName(playerID: string) {
+      console.log("TEST: " + playerID)
+      return this.clients?.find((index: Player) => index.id === playerID).name
+    }
   },
 
   sockets: {
@@ -101,44 +108,120 @@ export default defineComponent({
 
   mounted() {
     this.$socket.emit("moveRoom", this.roomID, "join")
+    console.log(this.clients)
   },
 
   beforeUnmount() {
     this.$socket.emit("moveRoom", this.roomID, "leave")
   }
 })
+
+/*
+export default defineComponent({
+  props: {
+    roomID: {
+      type: String,
+      required: true,
+    },
+    clients: {
+      type: Object,
+      required: true
+    }
+  },
+
+  setup(props) {
+    const store = useStore()
+
+    const players = ref([] as Player[])
+    const maxPlayers = 4
+
+    const counter = ref(3)
+    const showCounter = ref(false)
+    const started = ref(false)
+
+    function startGame() {
+      showCounter.value = true
+      const count = setInterval(() => {
+        if (counter.value > 0) {
+          counter.value--
+        } else {
+          clearInterval(count)
+          console.log("start!")
+          started.value = true
+        }
+      }, 1000)
+    }
+
+    function playerName(playerID: string) {
+      return props.clients?.find((index: Player) => index.id === playerID).name
+    }
+
+    socket.on("fetchRoom", (data: Array<string>) => {
+      let newPlayers: Player[] = []
+      data.forEach((playerID, i) => {
+        const playerIndex = players.value.findIndex(index => index.id = playerID)
+        newPlayers[i] = { id: data[i], ready: (playerIndex >= 0) ? players.value[playerIndex].ready : false }
+      })
+      players.value = newPlayers
+    })
+
+    socket.on("changeReady", (userID: string) => {
+      let playerIndex = players.value.findIndex(index => index.id === userID)
+      players.value[playerIndex].ready = !players.value[playerIndex].ready
+    })
+
+    return {
+      Button,
+      Play,
+      startGame,
+      playerName,
+      players,
+      maxPlayers,
+      //socket,
+      store,
+      started,
+      showCounter,
+      counter
+    }
+  }
+})
+*/
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @use "variables" as v;
 
 #game {
-  flex-direction: row;
-  gap: v.$viewport-padding;
-
   >div {
-    width: fit-content;
-    border: 1px solid red;
-    flex-grow: 1;
-
-    &:first-child {
-      gap: 1em;
-    }
-  }
-
-  #lobbySlots {
-    display: grid;
-    gap: calc(0.5*v.$viewport-padding);
-    grid-template-columns: 1fr 1fr;
-    height: fit-content;
-    max-width: 60%;
+    position: absolute;
+    flex-direction: row;
+    gap: v.$viewport-padding;
+    border: 1px solid white;
 
     >div {
-      background-color: rgba(v.$text-color, 0.2);
-      background-size: cover;
-      border-radius: 0.5em;
-      overflow: hidden;
-      aspect-ratio: 1/1;
+      width: fit-content;
+      border: 1px solid red;
+      flex-grow: 1;
+
+      &:first-child {
+        gap: 1em;
+      }
+    }
+
+    #lobbySlots {
+      display: grid;
+      gap: calc(0.5*v.$viewport-padding);
+      grid-template-columns: 1fr 1fr;
+      height: fit-content;
+      max-width: 60%;
+
+      >div {
+        background-color: rgba(v.$text-color, 0.2);
+        background-size: cover;
+        border-radius: 0.5em;
+        overflow: hidden;
+        aspect-ratio: 1/1;
+      }
     }
   }
 }
