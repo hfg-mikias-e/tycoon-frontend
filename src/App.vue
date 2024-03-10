@@ -1,46 +1,49 @@
 <template>
-  <div id="test">
-    {{ clients }}
-    {{ $store.state.userID }}
-  </div>
-  <Header v-if="allowed" :username="clients?.find(index => index.id === $store.state.userID).name" />
-  <router-view v-slot="{ Component }">
-    <Transition name="fade" mode="out-in">
-      <component :is="Component" :clients="clients" />
-    </Transition>
-  </router-view>
+  <p id="test">{{ clients }}</p>
+  <TransitionGroup name="header" v-if="allowed">
+    <Header key="header" v-if="showHeader"
+      :username="clients.find(index => index.id === $store.state.userID)?.name" />
+    <div key=router id="router">
+      <router-view v-slot="{ Component }">
+        <Transition name="fade" mode="out-in">
+          <component :is="Component" :clients="clients" @showHeader="(show: boolean) => showHeader = show" />
+        </Transition>
+      </router-view>
+    </div>
+  </TransitionGroup>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { v4 as uuidv4 } from "uuid"
+import { defineComponent } from "vue"
+import Button from "@/components/Button.vue"
 import Header from "@/components/Header.vue"
+import { v4 as uuidv4 } from "uuid"
 
 interface Client {
   id: string,
-  socket: string,
-  name: string
+  name: string,
+  socket: string
 }
 
 export default defineComponent({
-  name: "App",
+  name: "HomeView",
   components: {
-    Header
+    Button,
+    Header,
   },
 
   data() {
     return {
       connected: false,
       allowed: false,
-
-      clients: [] as Client[]
+      clients: [] as Client[],
+      showHeader: true
     }
   },
 
   sockets: {
     async connect() {
       this.connected = true
-      console.log("connected.")
 
       if (!this.$store.state.userID) {
         await this.$store.dispatch("setID", uuidv4())
@@ -49,13 +52,10 @@ export default defineComponent({
       this.$socket.emit("connectUser", this.$store.state.userID)
     },
 
-    allowUser() {
-      this.allowed = true
-    },
-
     updateUsers(clients: Array<Client>) {
-      console.log(clients)
+      console.log("updateUsers")
       this.clients = clients
+      this.allowed = true
     },
 
     redirectBack() {
@@ -64,93 +64,82 @@ export default defineComponent({
     },
 
     disconnect() {
-      this.connected = false;
       console.log("disconnected.")
+      this.$router.push("/")
     }
-  },
-
-  /*
-    setup() {
-      const router = useRouter()
-      const store = useStore()
-  
-      const connected = ref(false)
-      const allowed = ref(false)
-      const clients = ref([] as Client[])
-  
-      socket.on("connect", async () => {
-        connected.value = true;
-        console.log("connected.")
-  
-        if (!store.state.userID) {
-          await store.dispatch("setID", uuidv4())
-        }
-  
-        socket.emit("connectUser", store.state.userID)
-      });
-  
-      socket.on("allowUser", () => {
-        allowed.value = true
-      });
-  
-      socket.on("updateUsers", (allUsers) => {
-        clients.value = allUsers
-      });
-  
-      socket.on("redirectBack", () => {
-        console.log("redirectBack")
-        router.push("/")
-      });
-  
-      socket.on("disconnect", () => {
-        connected.value = false;
-        console.log("disconnected.")
-      });
-  
-      return {
-        Header,
-        clients,
-        allowed,
-        store
-      }
-    }
-  */
+  }
 })
+
+/*
+export default {
+  setup() {
+    //socket.connect()
+
+    const connected = ref(false)
+    const allowed = ref(false)
+    const clients = ref([])
+
+    socket.on("connect", () => {
+      console.log("ELFOSIHGSBOEIH")
+    })
+
+    return {
+      Button,
+      Header,
+      connected,
+      allowed,
+      clients
+    }
+  }
+}
+*/
 </script>
 
 <style lang="scss">
-@use "variables" as v;
-@import "./style.scss";
+  @use "variables" as v;
+  @import "./style.scss";
 
-#test {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  padding: v.$viewport-padding;
-
-  >div:last-child {
-    height: 100%;
+  #test {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
   }
-}
 
-nav {
-  padding: 30px;
-}
+  #app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+    #router {
+      overflow: hidden;
+      flex-grow: 1;
 
-nav a.router-link-exact-active {
-  color: #42b983;
-}
+      >div:last-child {
+        // router container
+        padding: calc(0.75*v.$viewport-padding) v.$viewport-padding;
+        height: 100%;
+      }
+    }
+  }
+
+  .header-move,
+  /* apply transition to moving elements */
+  .header-enter-active,
+  .header-leave-active {
+    transition: all 1s ease;
+  }
+
+  .header-enter-from,
+  .header-leave-to {
+    transform: translateY(calc(-1*(100% + v.$viewport-padding)));
+  }
+
+  /* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+  .header-leave-active {
+    position: absolute;
+    width: calc(100vw - 2*(v.$viewport-padding))
+  }
 </style>

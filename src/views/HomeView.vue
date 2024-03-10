@@ -38,6 +38,7 @@ export default defineComponent({
   methods: {
     joinGame(roomType: string) {
       this.$socket.emit("findGame", roomType)
+      console.log(roomType)
     }
   }
 })

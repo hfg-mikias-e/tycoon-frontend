@@ -1,9 +1,10 @@
 <template>
-  <transition name="pop" mode="out-in" appear>
-    <Button class="cardButton" :disabled="cardDisabled">
-      <img class="card" :src="require('../assets/cards/' + cardImage + '.png')" />
+  <Transition>
+    <Button id="cardButton">
+      <img v-if="sign && value" :src="require('../assets/cards/' + value + '-' + sign + '.png')" />
+      <img v-else :src="require('../assets/cards/0.png')" />
     </Button>
-  </transition>
+  </Transition>
 </template>
 
 <script lang="ts">
@@ -18,18 +19,8 @@ export default defineComponent({
   },
 
   props: {
-    cardValue: Number,
-    cardSign: String,
-    cardDisabled: Boolean
-  },
-
-  computed: {
-    cardImage(): string {
-      if (this.cardSign === undefined || this.cardValue === undefined) {
-        return '0'
-      }
-      return this.cardValue + '-' + this.cardSign
-    }
+    value: Number,
+    sign: String,
   }
 })
 </script>
@@ -37,15 +28,10 @@ export default defineComponent({
 <style scoped lang="scss">
 @use 'variables' as v;
 
-.card {
-  background: v.$secondary-color;
-  width: 100%;
-  border-radius: 4%;
+#cardButton {
   box-shadow: -2px 0 2px rgba(v.$background-color, 0.4);
-}
-
-.cardButton {
-  width: 200%;
+  border-radius: 4%;
+  overflow: hidden;
 
   &:hover {
     transform: translate(0, -5%);
@@ -55,9 +41,10 @@ export default defineComponent({
   &:disabled {
     filter: brightness(40%)
   }
-}
 
-.pop-enter-active {
-  animation: pop 0.36s ease-out;
+  img {
+    height: 100%;
+    background: v.$secondary-color;
+  }
 }
 </style>

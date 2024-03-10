@@ -6,7 +6,6 @@
   line-height: 120%;
   text-align: start;
 
-  color: v.$text-color;
   margin: 0;
   padding: 0;
   position: relative;
@@ -25,8 +24,10 @@
   }
 
   /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 html {
@@ -45,6 +46,10 @@ body {
   overflow: hidden;
   overflow-x: hidden;
   position: fixed;
+
+  @media (max-height: 400px) {
+    font-size: 4vh;
+  }
 }
 
 #app,
@@ -64,19 +69,11 @@ body {
 }
 
 div {
-  width: 100%;
   box-sizing: border-box;
   display: flex;
   justify-content: flex-start;
-  //align-items: flex-start;
   flex-direction: column;
-  border-radius: 0.75em;
   position: relative;
-
-  &.row {
-    flex-direction: row;
-    align-items: center;
-  }
 }
 
 ul {
@@ -87,7 +84,6 @@ ul {
 img {
   width: 100%;
   display: inline-block;
-  border-radius: 0.75em;
 }
 
 svg,
@@ -97,32 +93,36 @@ path {
   height: 1em;
 }
 
-span {
+span,
+p,
+h1,
+h2,
+h3,
+h4 {
+  color: v.$text-color;
+  margin: 0;
+  width: fit-content;
+  -webkit-font-smoothing: subpixel-antialiased;
+
   &.accent-primary {
     color: v.$primary-color;
   }
 }
 
-h1,
-h2,
-h3,
-h4 {
-  margin: 0;
-  display: table;
-  width: fit-content;
-  -webkit-font-smoothing: subpixel-antialiased;
+.note {
+  opacity: 0.6;
 }
 
 // Header
 h1 {
-  font-size: 28px;
+  font-size: 1.75em;
   font-weight: 400;
   line-height: 1.2;
 }
 
 // Heading Text
 h4 {
-  font-size: 16px;
+  font-size: 1em;
   font-weight: 300;
 }
 
@@ -130,9 +130,11 @@ h4 {
 p,
 b,
 input {
-  font-size: 16px;
+  font-size: 1em;
   line-height: 1.4;
-  font-family: /*'Exo 2'*/ "Lato", sans-serif;
+  font-family:
+    /*'Exo 2'*/
+    "Lato", sans-serif;
 }
 
 a {
@@ -157,24 +159,14 @@ path {
 
 svg {
   aspect-ratio: 1 / 1;
-
-  &.checkbox {
-    position: relative;
-    margin-right: 8px;
-  }
-
-  &.close {
-    position: absolute;
-    right: 16px;
-  }
 }
 
 /* --- ANIMATION --- */
 
 .fade-enter-active,
 .fade-leave-active {
-  transition-property: opacity;
-  transition-duration: 0.2s;
+  transition-property: all;
+  transition-duration: 0.4s;
 }
 
 .fade-enter-active {
@@ -184,4 +176,5 @@ svg {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+  transform: translateY(1em);
 }

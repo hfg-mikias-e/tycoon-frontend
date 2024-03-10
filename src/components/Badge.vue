@@ -1,9 +1,7 @@
 <template>
   <span class="badge">
-    <icon v-if="icon !== undefined" :icon="icon" />
-    <p>
-      <slot></slot>
-    </p>
+    <icon v-if="icon" :icon="icon" />
+    <slot></slot>
   </span>
 </template>
 
@@ -25,20 +23,12 @@ export default defineComponent({
 .badge {
   background-color: v.$text-color;
   color: v.$background-color;
-  padding: 0 6px;
-  border-radius: 20px;
-  font-weight: 400;
+  width: fit-content;
+  padding: 0.1em 0.5em;
+  border-radius: 1em;
   display: flex;
-  flex-direction: row;
   align-items: center;
   text-transform: uppercase;
-  gap: 4px;
-
-  &.status {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translate(-50%, 50%);
-  }
+  gap: 0.25em;
 }
 </style>

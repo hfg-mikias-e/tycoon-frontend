@@ -1,6 +1,6 @@
 <template>
   <button>
-    <icon v-if="buttonIcon" v-bind:icon="buttonIcon" />
+    <icon v-if="icon" :icon="icon" />
     <slot></slot>
   </button>
 </template>
@@ -11,14 +11,7 @@ import { defineComponent } from "vue"
 export default defineComponent({
   name: "Button",
   props: {
-    buttonClass: String,
-    buttonIcon: String
-  },
-
-  setup(props) {
-    return {
-      props
-    }
+    icon: String
   }
 })
 </script>
@@ -33,7 +26,7 @@ button {
   display: flex;
   justify-content: center;
   text-transform: uppercase;
-  font-size: 18px;
+  font-size: 1.125em;
   color: v.$text-color;
   font-weight: bold;
   border: none;
@@ -43,27 +36,26 @@ button {
   vertical-align: middle;
   transition: 0.2s;
   align-items: center;
-  gap: 12px;
+  gap: 0.75em;
 
   &:enabled:hover {
     cursor: pointer;
   }
 
   &:enabled:active {
-    transform: translate(1px, 2px);
+    transform: translate(0, 0.175em);
     transition: 0.05s;
   }
 
   &.primary,
   &.secondary {
-    padding: 0 24px;
-    height: 48px;
-    border-radius: 12px;
-    border: 1px;
+    padding: 0 1.5em;
+    height: 3em;
+    border-radius: 0.5em;
+    border: 0.125em;
 
     &.big {
-      padding: 0 28px;
-      height: 60px;
+      height: 3.5em;
     }
 
     &:disabled {

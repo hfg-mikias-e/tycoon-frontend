@@ -1,11 +1,10 @@
 <template>
-  <transition mode="out-in" name="short" appear>
+  <transition name="short" appear>
     <div class="gameStatus" :class="{ permanent: permanent }">
       <icon id="statusIcon" :icon="eventIcon" />
       <h1>{{ event }}</h1>
 
       <p v-if="permanent">Card strength reversed.</p>
-
       <p v-else-if="event === 'all-pass'">Everyone passed.</p>
       <p v-else-if="event === 'eight-stop'">Starts a new stack instantly!</p>
       <p v-else-if="event === 'revolution'">Reverses all card values!</p>
@@ -50,7 +49,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @use 'variables' as v;
 
 .gameStatus {
