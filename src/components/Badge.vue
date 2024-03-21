@@ -1,5 +1,5 @@
 <template>
-  <span class="badge">
+  <span id="badge">
     <icon v-if="icon" :icon="icon" />
     <slot></slot>
   </span>
@@ -20,7 +20,7 @@ export default defineComponent({
 <style scoped lang="scss">
 @use 'variables' as v;
 
-.badge {
+#badge {
   background-color: v.$text-color;
   color: v.$background-color;
   width: fit-content;

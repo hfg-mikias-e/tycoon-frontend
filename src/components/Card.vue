@@ -1,8 +1,7 @@
 <template>
-  <Transition>
+  <Transition name="pop">
     <Button id="cardButton">
-      <img v-if="sign && value" :src="require('../assets/cards/' + value + '-' + sign + '.png')" />
-      <img v-else :src="require('../assets/cards/0.png')" />
+      <img :src="require('../assets/cards/' + value + '-' + sign + '.png')" />
     </Button>
   </Transition>
 </template>
@@ -29,9 +28,11 @@ export default defineComponent({
 @use 'variables' as v;
 
 #cardButton {
+  width: 200%;
   box-shadow: -2px 0 2px rgba(v.$background-color, 0.4);
   border-radius: 4%;
   overflow: hidden;
+  background: rgb(75, 9, 9);
 
   &:hover {
     transform: translate(0, -5%);
@@ -44,7 +45,34 @@ export default defineComponent({
 
   img {
     height: 100%;
-    background: v.$secondary-color;
+    //filter: invert(1);
+    opacity: 0.75;
   }
+}
+
+.selected {
+  transform: translateY(-15%);
+
+  &:hover {
+    transform: translateY(50%);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+
+  20% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pop-enter-active {
+  animation: pop 0.4s ease-out;
 }
 </style>

@@ -43,7 +43,7 @@
             player ...</div>
         </div>
       </div>
-      <Play v-else :lobby="players" />
+      <Play v-else :lobby="players" :roomID="roomID" />
     </Transition>
   </div>
 </template>
@@ -153,12 +153,12 @@
       border: 1px solid pink;
       height: 100%;
       flex-direction: row;
-      gap: v.$viewport-padding;
+      gap: v.$viewport-padding-horizontal;
       justify-content: space-between;
 
       >div {
         height: 100%;
-        gap: calc(0.5*v.$viewport-padding);
+        gap: calc(0.5*v.$viewport-padding-vertical);
 
         &:first-child {
           max-width: 25%;

@@ -45,7 +45,7 @@ export default defineComponent({
     justify-content: space-between;
     flex-direction: row;
     width: 100%;
-    padding: calc(0.75*v.$viewport-padding) v.$viewport-padding;
+    padding: v.$viewport-padding-vertical v.$viewport-padding-horizontal;
     padding-bottom: 0;
     align-items: flex-end;
 

@@ -64,8 +64,8 @@ export default defineComponent({
     },
 
     disconnect() {
-      console.log("disconnected.")
       this.$router.push("/")
+      console.log("disconnected.")
     }
   }
 })
@@ -104,6 +104,7 @@ export default {
     bottom: 0;
     left: 0;
     z-index: 100;
+    display: none;
   }
 
   #app {
@@ -118,7 +119,7 @@ export default {
 
       >div:last-child {
         // router container
-        padding: calc(0.75*v.$viewport-padding) v.$viewport-padding;
+        padding: v.$viewport-padding-vertical v.$viewport-padding-horizontal;
         height: 100%;
       }
     }
@@ -133,13 +134,13 @@ export default {
 
   .header-enter-from,
   .header-leave-to {
-    transform: translateY(calc(-1*(100% + v.$viewport-padding)));
+    transform: translateY(calc(-1*(100% + v.$viewport-padding-vertical)));
   }
 
   /* ensure leaving items are taken out of layout flow so that moving
    animations can be calculated correctly. */
   .header-leave-active {
     position: absolute;
-    width: calc(100vw - 2*(v.$viewport-padding))
+    width: calc(100vw - 2*(v.$viewport-padding-horizontal))
   }
 </style>
