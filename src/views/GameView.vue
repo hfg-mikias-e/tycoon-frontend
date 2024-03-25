@@ -43,152 +43,154 @@
             player ...</div>
         </div>
       </div>
-      <Play v-else :lobby="players" :roomID="roomID" />
+    </Transition>
+    <Transition name="fade" mode="out-in">
+      <Play v-show="started" :lobby="players" :roomID="roomID" :ready="started" />
     </Transition>
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent } from "vue"
-  import Button from "@/components/Button.vue"
-  //import Badge from "@/components/Badge.vue"
-  import Counter from "@/components/Counter.vue"
-  import Play from "@/components/Play.vue"
+import { defineComponent } from "vue"
+import Button from "@/components/Button.vue"
+import Badge from "@/components/Badge.vue"
+import Counter from "@/components/Counter.vue"
+import Play from "@/components/Play.vue"
 
-  interface Player {
-    id: string,
-    name: string,
-    ready: boolean
-  }
+interface Player {
+  id: string,
+  name: string,
+  ready: boolean
+}
 
-  export default defineComponent({
-    name: "HomeView",
-    components: {
-      Button,
-      //Badge,
-      Play,
-      Counter
-    },
+export default defineComponent({
+  name: "HomeView",
+  components: {
+    Button,
+    Badge,
+    Play,
+    Counter
+  },
 
-    emits: ["showHeader"],
+  emits: ["showHeader"],
 
-    props: {
-      roomID: String,
-      clients: Object
-    },
+  props: {
+    roomID: String,
+    clients: Object
+  },
 
-    data() {
-      return {
-        players: [] as Player[],
-        maxPlayers: 4,
-        link: window.location.href,
+  data() {
+    return {
+      players: [] as Player[],
+      maxPlayers: 4,
+      link: window.location.href,
 
-        counter: 3,
-        showCounter: false,
-        started: false
-      }
-    },
-
-    methods: {
-      startGame() {
-        this.$socket.emit("startGame", this.roomID)
-        this.showCounter = true
-
-        setTimeout(() => {
-          const count = setInterval(() => {
-            if (this.counter > 0) {
-              this.counter--
-            } else {
-              clearInterval(count)
-              this.started = true
-              this.$emit("showHeader", false)
-            }
-          }, 1200)
-        }, 500)
-      },
-    },
-
-    sockets: {
-      updateRoom(data: Array<string>) {
-        let newPlayers: Player[] = []
-        data.forEach((playerID, i) => {
-          // compare to all ready states of the current players and overwrite the value if a player is still in the lobby
-          const playerIndex = this.players.findIndex((index: Player) => index.id = playerID)
-          newPlayers[i] = {
-            id: data[i],
-            name: this.clients?.find((index: Player) => index.id === data[i]).name,
-            ready: (playerIndex >= 0) ? this.players[playerIndex].ready : false
-          }
-        })
-        this.players = newPlayers
-      },
-
-      changeReady(userID: string) {
-        let playerIndex = this.players.findIndex(index => index.id === userID)
-        this.players[playerIndex].ready = !this.players[playerIndex].ready
-
-        // start the game if the lobby is full and everyone is ready
-        if (!this.players.some(index => !index.ready)/* && this.players.length === this.maxPlayers*/) {
-          this.startGame()
-        }
-      }
-    },
-
-    mounted() {
-      this.$socket.emit("moveRoom", this.roomID, "join")
-    },
-
-    beforeUnmount() {
-      this.$socket.emit("moveRoom", this.roomID, "leave")
-      this.$emit("showHeader", true)
+      counter: 3,
+      showCounter: false,
+      started: false
     }
-  })
+  },
+
+  methods: {
+    startGame() {
+      this.$socket.emit("startGame", this.roomID)
+      this.showCounter = true
+
+      setTimeout(() => {
+        const count = setInterval(() => {
+          if (this.counter > 0) {
+            this.counter--
+          } else {
+            clearInterval(count)
+            this.started = true
+            this.$emit("showHeader", false)
+          }
+        }, 1200)
+      }, 500)
+    },
+  },
+
+  sockets: {
+    updateRoom(data: Array<string>) {
+      let newPlayers: Player[] = []
+      data.forEach((playerID, i) => {
+        // compare to all ready states of the current players and overwrite the value if a player is still in the lobby
+        const playerIndex = this.players.findIndex((index: Player) => index.id = playerID)
+        newPlayers[i] = {
+          id: data[i],
+          name: this.clients?.find((index: Player) => index.id === data[i]).name,
+          ready: (playerIndex >= 0) ? this.players[playerIndex].ready : false
+        }
+      })
+      this.players = newPlayers
+    },
+
+    changeReady(userID: string) {
+      let playerIndex = this.players.findIndex(index => index.id === userID)
+      this.players[playerIndex].ready = !this.players[playerIndex].ready
+
+      // start the game if the lobby is full and everyone is ready
+      if (!this.players.some(index => !index.ready)/* && this.players.length === this.maxPlayers*/) {
+        this.startGame()
+      }
+    }
+  },
+
+  mounted() {
+    this.$socket.emit("moveRoom", this.roomID, "join")
+  },
+
+  beforeUnmount() {
+    this.$socket.emit("moveRoom", this.roomID, "leave")
+    this.$emit("showHeader", true)
+  }
+})
 </script>
 
 <style scoped lang="scss">
-  @use "variables" as v;
+@use "variables" as v;
 
-  #game {
-    #lobby {
-      border: 1px solid pink;
+#game {
+  #lobby {
+    border: 1px solid pink;
+    height: 100%;
+    flex-direction: row;
+    gap: v.$viewport-padding-horizontal;
+    justify-content: space-between;
+
+    >div {
       height: 100%;
-      flex-direction: row;
-      gap: v.$viewport-padding-horizontal;
-      justify-content: space-between;
+      gap: calc(0.5*v.$viewport-padding-vertical);
 
-      >div {
-        height: 100%;
-        gap: calc(0.5*v.$viewport-padding-vertical);
-
-        &:first-child {
-          max-width: 25%;
-        }
-      }
-
-      #link {
-        border: 1px solid pink;
+      &:first-child {
+        max-width: 25%;
       }
     }
 
-    #lobbySlots {
-      border: 2px red solid;
-      flex-direction: row;
-
-      @media (min-height: 520px) {
-        aspect-ratio: 1;
-        max-width: 100%;
-        max-height: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      #slot {
-        border-radius: 0.75em;
-        background-color: rgba(v.$text-color, 0.2);
-        overflow: hidden;
-        aspect-ratio: 1/1;
-        width: 100%;
-      }
+    #link {
+      border: 1px solid pink;
     }
   }
+
+  #lobbySlots {
+    border: 2px red solid;
+    flex-direction: row;
+
+    @media (min-height: 520px) {
+      aspect-ratio: 1;
+      max-width: 100%;
+      max-height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #slot {
+      border-radius: 0.75em;
+      background-color: rgba(v.$text-color, 0.2);
+      overflow: hidden;
+      aspect-ratio: 1/1;
+      width: 100%;
+    }
+  }
+}
 </style>

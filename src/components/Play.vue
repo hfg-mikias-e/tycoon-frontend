@@ -6,14 +6,13 @@
         <b>{{ player.name }}</b>
         <div v-if="player.left">left the game...</div>
         <div v-else>
-          <h2>14</h2>
+          <h2>{{ player.hand.length }}</h2>
           <p>cards left</p>
         </div>
         <Badge v-if="player.turn">current turn</Badge>
       </div>
     </div>
 
-    <p>{{ players }}</p>
     <p>specialCase: {{ specialCase }}</p>
     <p>passed: {{ passed }}</p>
 
@@ -30,7 +29,7 @@
 
     <div id="userSlot">
       <div>
-        <Button @click="$socket.emit('passTurn', roomID)" :disabled="!player?.turn" class="secondary">Pass</Button>
+        <Button @click="$socket.emit('passTurn', roomID)" :disabled="!player?.turn || specialCase !== ''" class="secondary">Pass</Button>
         <div id="slot" :class="{ turn: player?.turn }">
           <div>
             <Badge>you</Badge><b> {{ player?.name }}</b>
@@ -44,8 +43,8 @@
       <div id="cardRow">
         <div v-for="(card, index) in player?.hand" :key="index">
           <CardButton :class="{ selected: selection.some(index => index.sign === card.sign && index.num === card.num) }"
-            :disabled="disableCard(card.sign, card.num) || !player?.turn || specialCase !== ''" @click="selectCard(card.sign, card.num)"
-            :sign="card.sign" :value="card.num" />
+            :disabled="disableCard(card.sign, card.num) || !player?.turn || specialCase !== ''"
+            @click="selectCard(card.sign, card.num)" :sign="card.sign" :value="card.num" />
         </div>
       </div>
     </div>
@@ -86,7 +85,8 @@ export default defineComponent({
 
   props: {
     lobby: Object,
-    roomID: String
+    roomID: String,
+    ready: Boolean
   },
 
   data() {
@@ -119,18 +119,44 @@ export default defineComponent({
     }
   },
 
+  watch: {
+    ready(isReady) {
+      if (isReady) {
+        this.$socket.emit("setLoaded", this.roomID, this.$store.state.userID)
+      }
+    }
+  },
+
   sockets: {
+    addLoaded(userID: string) {
+      const player = this.lobby?.find((index: Player) => index.id === userID)
+
+      this.players.push({
+        id: player.id,
+        name: player.name,
+        hand: [] as Card[],
+        turn: false,
+        left: false
+      })
+
+      console.log(this.players.length, this.players.length)
+
+      if (this.players.length === this.lobby?.length) {
+        // all players games have loaded, start the game by giving out cards.
+        this.$socket.emit("getCards", this.roomID)
+      }
+    },
+
     giveCards(handouts: [Array<Card[]>, number]) {
+      console.log("giveCards")
+
       const hands = handouts[0]
       const firstTurn = handouts[1]
 
-      this.players = this.lobby?.map((player: Player, index: number) => ({
-        id: player.id,
-        name: player.name,
-        hand: hands[index],
-        turn: index === firstTurn,
-        left: false
-      }))
+      this.players.forEach((player: Player, index: number) => {
+        player.hand = hands[index]
+        player.turn = index === firstTurn
+      })
 
       this.playing = true
     },
@@ -146,6 +172,11 @@ export default defineComponent({
     },
 
     newCurrentCards(cards: Array<Card>) {
+      // remove cards from the player hand
+      this.players.forEach((player: Player) => {
+        player.hand = player.hand.filter((index: Card) => !cards.some((card: Card) => index.num === card.num && index.sign === card.sign))
+      })
+
       // reset any series of passes
       this.passed = 0
 
@@ -204,12 +235,9 @@ export default defineComponent({
     },
 
     playCards() {
-      // remove played cards from hand
-      this.player.hand = this.player.hand.filter((index: Card) => !this.selection.some((card: Card) => index.num === card.num && index.sign === card.sign))
-      this.selection = []
-      
       // selected cards become new current cards for every player
       this.$socket.emit("playCards", this.roomID, this.selection)
+      this.selection = []
     },
 
     disableCard(sign: string, num: number) {
@@ -261,10 +289,6 @@ export default defineComponent({
       return false
     },
   },
-
-  mounted() {
-    this.$socket.emit("getCards", this.roomID, this.lobby?.length)
-  }
 });
 </script>
 
