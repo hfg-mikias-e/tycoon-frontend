@@ -126,11 +126,11 @@ export default defineComponent({
     },
 
     changeReady(userID: string) {
-      let playerIndex = this.players.findIndex(index => index.id === userID)
+      let playerIndex = this.players.findIndex((index: Player) => index.id === userID)
       this.players[playerIndex].ready = !this.players[playerIndex].ready
 
       // start the game if the lobby is full and everyone is ready
-      if (!this.players.some(index => !index.ready)/* && this.players.length === this.maxPlayers*/) {
+      if (!this.players.some((index: Player) => !index.ready)/* && this.players.length === this.maxPlayers*/) {
         this.startGame()
       }
     }
