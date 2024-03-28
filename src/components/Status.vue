@@ -26,7 +26,7 @@ export default defineComponent({
   },
 
   computed: {
-    eventIcon(): any {
+    eventIcon(): string {
       if(this.permanent) {
         return "sync-alt"
       } else {
@@ -43,7 +43,7 @@ export default defineComponent({
             return "angles-right"
         }
       }
-      //return "question"
+      return "question"
     }
   }
 });

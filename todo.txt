@@ -1,8 +1,7 @@
 MVP:
 
-- player slot behavior on when a player leaves or finishes
+- player slot behavior on when a player leaves
 - add message for special cases (+ static information for active revolution)
-- back to lobby after a game
 - add game rules instructions
 - make a lobby unjoinable after the game has started
 - screen information when the server is still waking up or access denied because of multiple tabs

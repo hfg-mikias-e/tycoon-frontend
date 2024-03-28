@@ -1,17 +1,14 @@
 <template>
   <div id="play" v-if="playing">
     <div id="playerSlots">
-      <div id="slot" :class="{ turn: player.turn, left: player.left, done: ranks.includes(player.id) }"
-        v-for="(player, index) in players.filter(index => index.id !== $store.state.userID)" :key="index">
+      <div id="slot" :class="{ turn: player.turn, left: player.left, done: player.rank > 0 }"
+        v-for="(player, index) in players.filter((index: Player) => index.id !== $store.state.userID)" :key="index">
         <b>{{ player.name }}</b>
         <p v-if="player.left">left the game...</p>
-        <div v-if="ranks.includes(player.id)">
-          <p>{{ ranks.indexOf(player.id) + 1 }}
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </p>
+        <div v-else-if="player.rank > 0">
+          <h2>{{ player.rank }}</h2>
+          <p>{{ nth(player.rank) }}</p>
+          <icon :icon="rankIcon(player.rank)" />
         </div>
         <div v-else>
           <h2>{{ player.hand.length }}</h2>
@@ -21,18 +18,13 @@
       </div>
     </div>
 
-    <p>selection: {{ selection }}</p>
-    <p>specialCase: {{ specialCase }}</p>
-    <p>passed: {{ passed }}</p>
-
     <div id="gameSlot">
       <div id="cardRow">
-        <div v-for="(card, index) in currentCards" :key="index">
-          <CardButton style="pointer-events: none" :sign="card.sign" :value="card.num" />
-        </div>
-        <div v-if="currentCards.length === 0">
-          <CardButton style="pointer-events: none" sign="X" :value="0" />
-        </div>
+        <TransitionGroup name="card">
+          <div v-for="card in currentCards" :key="card.sign + card.num">
+            <CardButton :sign="card.sign" :value="card.num" />
+          </div>
+        </TransitionGroup>
       </div>
     </div>
 
@@ -44,18 +36,26 @@
           <div>
             <Badge>you</Badge><b> {{ player?.name }}</b>
           </div>
+          <div v-if="player.rank > 0">
+            <h2>{{ player.rank }}</h2>
+            <p>{{ nth(player.rank) }}</p>
+            <icon :icon="rankIcon(player.rank)" />
+          </div>
           <Badge v-if="player?.turn">current turn</Badge>
         </div>
-        <Button @click="playCards"
-          :disabled="!player?.turn || (selection.length === 0 || (currentCards.length > 0 && selection.length !== currentCards.length))"
+        <Button @click="$socket.emit('playCards', roomID, selection)"
+          :disabled="!player?.turn || specialCase !== '' || selection.length === 0 || (currentCards.length > 0 && selection.length !== currentCards.length)"
           class="primary">Play</Button>
       </div>
       <div id="cardRow">
-        <div v-for="(card, index) in player?.hand" :key="index">
-          <CardButton :class="{ selected: selection.some(index => index.sign === card.sign && index.num === card.num) }"
-            :disabled="disableCard(card.sign, card.num) || !player?.turn || specialCase !== ''"
-            @click="selectCard(card.sign, card.num)" :sign="card.sign" :value="card.num" />
-        </div>
+        <TransitionGroup name="hand">
+          <div v-for="card in player?.hand" :key="card.sign + card.num">
+            <CardButton
+              :class="{ selected: selection.some(index => index.sign === card.sign && index.num === card.num) }"
+              :disabled="disableCard(card.sign, card.num) || !player?.turn || specialCase !== ''"
+              @click="selectCard(card.sign, card.num)" :sign="card.sign" :value="card.num" />
+          </div>
+        </TransitionGroup>
       </div>
     </div>
   </div>
@@ -77,7 +77,8 @@
     name: string,
     hand: Card[]
     turn: boolean,
-    left: boolean
+    left: boolean,
+    rank: number
   }
 
   interface Cases {
@@ -99,34 +100,42 @@
       ready: Boolean
     },
 
+    emits: ["closeGame"],
+
     data() {
       return {
         players: [] as Player[],
-        playing: false,
-        ranks: [] as string[],
-        passed: 0,
-        turn: 0,
+        undefinedPlayer: {
+          id: "",
+          name: "",
+          hand: [] as Card[],
+          turn: false,
+          left: false,
+          rank: 0
+        } as Player,
 
-        delay: 0,
+        // player who played the last currentCards
+        lastPlayed: {} as Player,
+
+        playing: false,
         revolution: false,
         specialCase: "",
+        delayTime: 3000,
 
         // cards that were last played
         currentCards: [] as Card[],
         // selected cards during turn
-        selection: [] as Card[]
+        selection: [] as Card[],
       }
     },
 
     computed: {
       player(): Player {
-        return this.players.find((index: Player) => index.id === this.$store.state.userID) ?? {
-          id: this.$store.state.userID,
-          name: "–",
-          hand: [] as Card[],
-          turn: false,
-          left: false
-        }
+        return this.players.find((index: Player) => index.id === this.$store.state.userID) ?? this.undefinedPlayer
+      },
+
+      playersLeft(): number {
+        return this.players.filter((index: Player) => index.rank === 0 && !index.left).length
       }
     },
 
@@ -135,7 +144,27 @@
         if (isReady) {
           this.$socket.emit("setLoaded", this.roomID, this.$store.state.userID)
         }
-      }
+      },
+
+      playersLeft(playersLeft) {
+        switch (playersLeft) {
+          case 0: {
+            // end the game after a short delay (every player has been placed)
+            setTimeout(() => {
+              this.playing = false
+              this.$emit("closeGame")
+            }, this.delayTime)
+            break
+          }
+          case 1: {
+            // give the last available place to the last player
+            const lastPlayer = this.players.find((index: Player) => index.rank === 0 && !index.left)
+            if (lastPlayer) {
+              lastPlayer.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
+            }
+          }
+        }
+      },
     },
 
     sockets: {
@@ -143,11 +172,9 @@
         const player = this.lobby?.find((index: Player) => index.id === userID)
 
         this.players.push({
+          ...this.undefinedPlayer,
           id: player.id,
-          name: player.name,
-          hand: [] as Card[],
-          turn: false,
-          left: false
+          name: player.name
         })
 
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
@@ -157,8 +184,6 @@
       },
 
       giveCards(handouts: [Array<Card[]>, number]) {
-        console.log("giveCards")
-
         const hands = handouts[0]
         const firstTurn = handouts[1]
 
@@ -171,28 +196,28 @@
       },
 
       passTurn() {
-        // check if all players have passed
-        this.passed++
-        if (this.passed >= this.players.length - 1) {
-          this.currentCards = []
-        }
-
-        this.selection = []
         this.newTurn()
       },
 
       setRank(userID: string) {
-        this.ranks.push(userID)
+        const player = this.players.find((index: Player) => index.id === userID)
+        if (player) {
+          player.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
+        }
       },
 
       newCurrentCards(cards: Array<Card>) {
+        this.lastPlayed = this.players?.find((index: Player) => index.turn) ?? this.undefinedPlayer
+
         // remove cards from the player hand
         this.players.forEach((player: Player) => {
           player.hand = player.hand.filter((index: Card) => !cards.some((card: Card) => index.num === card.num && index.sign === card.sign))
         })
 
-        // reset any series of passes
-        this.passed = 0
+        // did the player finish by getting rid of all their cards?
+        if (this.player.hand.length === 0) {
+          this.$socket.emit("setRank", this.roomID, this.$store.state.userID)
+        }
 
         // check the played cards for special cases
         const specialCases: Cases = {
@@ -202,14 +227,15 @@
         }
 
         this.currentCards = cards
+        let delay = 0
 
-        // also show special cases
+        // also show special cases one after another
         Object.keys(specialCases).forEach(key => {
           if (specialCases[key as keyof Cases]) {
             setTimeout(() => {
               this.specialCase = key
-            }, this.delay)
-            this.delay = this.delay + 3000
+            }, delay)
+            delay = delay + this.delayTime
           }
         })
 
@@ -217,28 +243,52 @@
           if (specialCases.eightStop || specialCases.threeSpades) {
             // new stack after the case, no pass
             this.currentCards = []
+
+            // exception: if a player finishes playing all cards by either case, still pass to the next player.
+            if (this.lastPlayed.rank > 0) {
+              this.newTurn()
+            }
           } else {
-            console.log("MACH WAS")
             this.newTurn()
           }
 
-          this.delay = 0
+          // swap the card rank order in case of a (counter-)revolution
+          if (specialCases.revolution) {
+            this.revolution = !this.revolution
+          }
+
           this.specialCase = ""
           this.selection = []
-        }, this.delay)
+        }, delay)
       }
     },
 
     methods: {
       newTurn() {
-        let newTurn = 0
-        if (this.turn < this.players.length - 1) {
-          newTurn = this.turn + 1
+        this.selection = []
+
+        const currentPlayer = this.players.findIndex((index: Player) => index.turn)
+        let nextPlayer = currentPlayer
+
+        // did the player that would be next leave or finish yet? -> skip
+        while ((this.players[nextPlayer].rank > 0 || this.players[nextPlayer].left || nextPlayer === currentPlayer) && this.playersLeft > 0) {
+          if (nextPlayer < this.players.length - 1) {
+            nextPlayer++
+          } else {
+            nextPlayer = 0
+          }
+
+          // might get stuck at the end when all players have finished
+          console.log("stuck in loop")
         }
 
-        this.players[this.turn].turn = false
-        this.players[newTurn].turn = true
-        this.turn = newTurn
+        this.players[currentPlayer].turn = false
+        this.players[nextPlayer].turn = true
+
+        // start a new stack if all players have passed (player has turn again who played the last currentCards)
+        if (this.players[nextPlayer].id === this.lastPlayed.id) {
+          this.currentCards = []
+        }
       },
 
       selectCard(sign: string, num: number) {
@@ -250,25 +300,10 @@
         }
       },
 
-      playCards() {
-        // selected cards become new current cards for every player
-        this.$socket.emit("playCards", this.roomID, this.selection)
-
-        // did the player finish by getting rid of all their cards?
-        if (this.player.hand.length === 0) {
-          this.$socket.emit("setRank", this.roomID, this.$store.state.userID)
-        }
-      },
-
       disableCard(sign: string, num: number) {
         // if the card is included in the current selection, don't disable it
         if (this.selection.some(index => index.num === num && index.sign === sign)) {
           return false
-        }
-
-        // number limit of chosen cards (max. 4)
-        if (this.selection.length >= 4) {
-          return true
         }
 
         // choosing a card
@@ -277,17 +312,29 @@
           if (this.selection.some(index => index.num !== num && index.num !== 16) && num !== 16) {
             return true
           }
+
+          // number limit of chosen cards (max. 4)
+          if (this.selection.length >= 4) {
+            return true
+          }
         }
 
         // by the existing current cards
         if (this.currentCards.length > 0) {
-          // exception: 3-of-Spades can be played on a joker
-          if (num === 3 && sign === "D" && this.currentCards.length === 1 && this.currentCards[0].num === 16) {
-            return false
+          // number limit of chosen cards (same as currentCards)
+          if (this.currentCards.length === this.selection.length) {
+            return true
           }
 
-          // disable lower (/higher if revolution) cards or if max. number of cards chosen
-          if (num !== 16 && (this.currentCards.length === this.selection.length || (!this.revolution && num <= this.currentCards[0].num) || (this.revolution && num >= this.currentCards[0].num))) {
+          if (this.currentCards.length === 1 && this.currentCards[0].num === 16) {
+            // exception: only 3-of-Spades can be played on a joker
+            if ((num !== 3 && sign !== "D") || num === 16) {
+              return true
+            }
+          }
+
+          // disable lower (/higher if revolution) cards
+          if (num !== 16 && ((!this.revolution && num <= this.currentCards[0].num) || (this.revolution && num >= this.currentCards[0].num))) {
             return true
           }
 
@@ -308,8 +355,29 @@
 
         return false
       },
-    },
-  });
+
+      nth(rank: number) {
+        return ["st", "nd", "rd"][((((rank + 90) % 100) - 10) % 10) - 1] || "th"
+      },
+
+      rankIcon(rank: number) {
+        switch (rank) {
+          case 1: {
+            return "crown"
+          }
+          case 2: {
+            return "sack-dollar"
+          }
+          case 3: {
+            return "drumstick-bite"
+          }
+          case 4: {
+            return "crow"
+          }
+        }
+      }
+    }
+  })
 </script>
 
 <style scoped lang="scss">
@@ -394,6 +462,11 @@
     }
   }
 
+  #noCard {
+    position: absolute;
+    z-index: -1;
+  }
+
   #slot {
     background-color: rgba(v.$text-color, 0.2);
     padding: 0.75em 1em;
@@ -403,8 +476,12 @@
 
     >div {
       flex-direction: row;
-      gap: 0.4em;
       align-items: flex-end;
+      gap: 0.4em;
+
+      >svg {
+        margin-bottom: 0.25em;
+      }
     }
 
     &.turn {
@@ -418,7 +495,9 @@
       }
 
       p,
-      b {
+      h2,
+      b,
+      svg {
         color: v.$background-color;
       }
     }
@@ -426,5 +505,35 @@
     &.left {
       opacity: 0.25;
     }
+  }
+
+  /* apply transition to moving elements */
+  .hand-enter-active,
+  .hand-leave-active {
+    transition: all 0.2s ease-in;
+  }
+
+  .hand-leave-to {
+    opacity: 0;
+    transform: translateY(-1em);
+  }
+
+  .card-enter-active,
+  .card-leave-active {
+    transition: all 0.2s ease-in;
+  }
+
+  .card-leave-active {
+    position: absolute;
+    z-index: -1;
+  }
+
+  .card-enter-from,
+  .card-leave-to {
+    opacity: 0;
+  }
+
+  .card-enter-from {
+    transform: translateY(-1em);
   }
 </style>

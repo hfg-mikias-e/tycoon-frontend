@@ -86,11 +86,15 @@ img {
   display: inline-block;
 }
 
-svg,
-path {
+svg {
+  color: v.$text-color;
   aspect-ratio: 1 / 1;
   display: inline-block;
   height: 1em;
+
+  path {
+    color: inherit;
+  }
 }
 
 span,
@@ -155,10 +159,6 @@ path {
     opacity: 0.8;
     cursor: pointer;
   }
-}
-
-svg {
-  aspect-ratio: 1 / 1;
 }
 
 /* --- ANIMATION --- */
