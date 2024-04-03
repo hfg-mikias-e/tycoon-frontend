@@ -159,12 +159,23 @@
           case 1: {
             // give the last available place to the last player
             const lastPlayer = this.players.find((index: Player) => index.rank === 0 && !index.left)
-            if (lastPlayer) {
+            // only one player left after game has started?
+            if (lastPlayer && this.playing) {
+              console.log("playersLeft")
               lastPlayer.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
             }
           }
         }
       },
+
+      lobby(leftInLobby) {
+        this.players.forEach((player: Player) => {
+          if (!leftInLobby.some((index: Player) => index.id === player.id)) {
+            // this player has left from the lobby, therefore also mark him as left in the current game
+            player.left = true
+          }
+        })
+      }
     },
 
     sockets: {
@@ -202,6 +213,7 @@
       setRank(userID: string) {
         const player = this.players.find((index: Player) => index.id === userID)
         if (player) {
+          console.log("setRank")
           player.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
         }
       },
@@ -326,11 +338,9 @@
             return true
           }
 
-          if (this.currentCards.length === 1 && this.currentCards[0].num === 16) {
-            // exception: only 3-of-Spades can be played on a joker
-            if ((num !== 3 && sign !== "D") || num === 16) {
-              return true
-            }
+          // exception: only 3-of-Spades can be played on a joker
+          if (this.currentCards.length === 1 && this.currentCards[0].num === 16 && num === 3 && sign === "D") {
+            return false
           }
 
           // disable lower (/higher if revolution) cards

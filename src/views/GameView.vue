@@ -1,5 +1,5 @@
 <template>
-  <div id="game">
+  <div id="game" v-if="entry">
     <Transition name="fade" mode="out-in">
       <div id="lobby" v-if="!started">
         <div>
@@ -49,6 +49,9 @@
         @closeGame="started = false; $socket.emit('startGame', roomID, false)" />
     </Transition>
   </div>
+  <div v-else>
+    <p>Sorry, could not join.</p>
+  </div>
 </template>
 
 <script lang="ts">
@@ -88,31 +91,41 @@
 
         counter: 3,
         showCounter: false,
-        started: false
+        started: false,
+        entry: false
       }
     },
 
     methods: {
       startGame() {
-        this.$socket.emit("startGame", this.roomID, true)
-        this.showCounter = true
+        // start if everyone is ready
+        if (!this.players.some((index: Player) => !index.ready)) {
+          // if the game is not a custom party it requires 4 players to start, otherwise at least 2
+          if ((this.$route.name === 'party' && this.players.length > 1) || (this.$route.name === 'random' && this.players.length === this.maxPlayers)) {
+            this.$socket.emit("startGame", this.roomID, true)
+            this.showCounter = true
 
-        setTimeout(() => {
-          const count = setInterval(() => {
-            if (this.counter > 0) {
-              this.counter--
-            } else {
-              clearInterval(count)
-              this.started = true
-              this.$emit("showHeader", false)
-            }
-          }, 1200)
-        }, 500)
+            setTimeout(() => {
+              const count = setInterval(() => {
+                if (this.counter > 0) {
+                  this.counter--
+                } else {
+                  clearInterval(count)
+                  this.started = true
+                  this.$emit("showHeader", false)
+                }
+              }, 1200)
+            }, 500)
+          }
+        }
       }
     },
 
     sockets: {
       updateRoom(data: Array<string>) {
+        // allow joining the room
+        this.entry = true
+
         let newPlayers: Player[] = []
         data.forEach((userID, i) => {
           const player = this.players.find((index: Player) => index.id = userID)
@@ -124,6 +137,8 @@
           }
         })
         this.players = newPlayers
+
+        this.startGame()
       },
 
       changeReady(userID: string) {
@@ -132,13 +147,7 @@
           player.ready = !player.ready
         }
 
-        // start if everyone is ready
-        if (!this.players.some((index: Player) => !index.ready)) {
-          // if the game is not a custom party it requires 4 players to start, otherwise at least 2
-          if ((this.$route.name === 'party' && this.players.length > 1) || (this.$route.name === 'random' && this.players.length === this.maxPlayers)) {
-            this.startGame()
-          }
-        }
+        this.startGame()
       }
     },
 
