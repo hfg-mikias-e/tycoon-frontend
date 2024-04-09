@@ -1,22 +1,18 @@
 <template>
   <div id="home">
     <div id="actions">
-      <Button class="primary" @click="joinGame('party')" :buttonClass="'primary big'">
+      <Button class="primary" @click="joinGame('party')" buttonClass="primary">
         create your own party
       </Button>
       <h4>OR</h4>
-      <h3>... join a party by entering the ID here:</h3>
-      <div>
-        <h1>#</h1>
-        <input v-model="partyID" placeholder="–––––––––" maxlength="9" />
-        <Button class="secondary" :disabled="!partyExists || partyID.length < 9"
-          @click="$router.push({ name: 'party', params: { roomID: partyID } })">Join</Button>
-      </div>
-      <p id="warning" :class="{ showWarning: !partyExists }">Sorry, unfortunately this Party does
-        not seem to exist anymore.</p>
+      <Button class="secondary" @click="joinByClipboard" buttonClass="secondary">
+        <template v-if="clipboard !== ''">Join Party #{{ clipboard }}</template>
+        <template v-else>Join someone's Party</template>
+      </Button>
+      <p>choose this option when you've copied the PartyID from a link your friends shared with you.</p>
     </div>
     <div>
-      <Button class="primary" @click="joinGame('random')" :buttonClass="'secondary big'">
+      <Button class="primary" @click="joinGame('random')" buttonClass="secondary">
         join a random game
       </Button>
       <h3>{{ clients?.length }} players are currently online.</h3>
@@ -37,7 +33,7 @@
     data() {
       return {
         partyID: "",
-        partyExists: true
+        clipboard: ""
       }
     },
 
@@ -45,6 +41,7 @@
       clients: Object
     },
 
+    /*
     watch: {
       partyID() {
         if (this.partyID.length === 9) {
@@ -54,6 +51,7 @@
         }
       }
     },
+    */
 
     sockets: {
       joinRoom(room: Array<string>) {
@@ -62,40 +60,31 @@
         this.$router.push({ name: roomType, params: { roomID } })
       },
 
-      partyExists(exists: boolean) {
-        this.partyExists = exists
+      partyExists(exists: string) {
+        this.clipboard = exists
+        console.log("exists: " + this.clipboard)
       }
     },
 
     methods: {
       joinGame(roomType: string) {
         this.$socket.emit("findGame", roomType)
-      }
-    }
-  })
+      },
 
-  /*
-  export default {
-    setup() {
-      const router = useRouter()
-  
-      socket.on("joinRoom", (room: Array<string>) => {
-        const roomID = room[0]
-        const roomType = room[1]
-        router.push({ name: roomType, params: { roomID } })
-      })
-  
-      function joinGame(roomType: string) {
-        //socket.emit("findGame", roomType)
+      async joinByClipboard() {
+        if (this.clipboard) {
+          this.$router.push({ name: 'party', params: { roomID: this.clipboard } })
+        } else {
+          try {
+            const clipboardString = await navigator.clipboard.readText()
+            this.$socket.emit("checkForParty", clipboardString)
+          } catch {
+            alert('Your browser seems to be blocking your clipboard! Please try again by allowing this action when pressing "join" or change it in the settings of your browser.')
+          }
+        }
       }
-  
-      return {
-        Button,
-        joinGame
-      }
-    }
-  }
-  */
+    },
+  })
 </script>
 
 <style scoped lang="scss">

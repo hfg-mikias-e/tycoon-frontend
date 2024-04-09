@@ -106,7 +106,7 @@
     methods: {
       startGame() {
         // if the game is not a custom party it requires 4 players to start, otherwise at least 2
-        if (this.players.length > 0 /*(this.$route.name === 'party' && this.players.length > 1) || (this.$route.name === 'random' && this.players.length === this.maxPlayers)*/) {
+        if ((this.$route.name === 'party' && this.players.length > 1) || (this.$route.name === 'random' && this.players.length === this.maxPlayers)) {
           this.$socket.emit("startGame", this.roomID, true)
           this.showCounter = true
 
