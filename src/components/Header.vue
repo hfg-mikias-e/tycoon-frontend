@@ -1,13 +1,15 @@
 <template>
   <div id="header">
-    <div id="logo">
-      <div :class="{ hideLogo: !homeScreen }">
-        <h4>Welcome to</h4>
-      </div>
-      <div>
-        <h2 :class="{ fixedFont: !homeScreen, glow: homeScreen }">TYCOON</h2>
-        <h3 :class="{ fixedFont: !homeScreen, glow: homeScreen }">LINE</h3>
-      </div>
+    <div id="logo" @click="$router.push('/')">
+      <TransitionGroup name="fade" mode="out-in">
+        <div v-if="homeScreen">
+          <h4>Welcome to</h4>
+        </div>
+        <div v-else>
+          <Button icon="circle-left">Back to Menu</Button>
+        </div>
+      </TransitionGroup>
+      <h2 :class="{ transformFont: !homeScreen, glow: homeScreen }">TYCOON<span>LINE</span></h2>
     </div>
     <div id="headerButtons">
       <Button class="secondary" icon="fa-book-bookmark">Rules</Button>
@@ -17,25 +19,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Button from '@/components/Button.vue'
+  import { defineComponent } from "vue";
+  import Button from '@/components/Button.vue'
 
-export default defineComponent({
-  name: "Header",
-  components: {
-    Button
-  },
+  export default defineComponent({
+    name: "Header",
+    components: {
+      Button
+    },
 
-  props: {
-    username: String
-  },
+    props: {
+      username: String
+    },
 
-  computed: {
-    homeScreen(): boolean {
-      return this.$route.name === "home";
+    computed: {
+      homeScreen(): boolean {
+        return this.$route.name === "home";
+      }
     }
-  }
-})
+  })
 </script>
 
 <style scoped lang="scss">
@@ -46,8 +48,9 @@ export default defineComponent({
     flex-direction: row;
     width: 100%;
     padding: v.$viewport-padding-vertical v.$viewport-padding-horizontal;
-    padding-bottom: 0;
+    padding-top: calc(2*v.$viewport-padding-vertical);
     align-items: flex-end;
+    z-index: 5;
 
     >div {
       height: fit-content;
@@ -65,44 +68,29 @@ export default defineComponent({
       }
     }
 
-    // LINE
-    h3 {
-      font-size: 24px;
+    // TYCOONLINE
+    h2 {
+      font-size: 3.75em;
       letter-spacing: -2px;
-      line-height: 0.8;
+      line-height: 0.75;
+      text-shadow: 0 0 20px rgba(#FFD8D8, 0.4);
+      transition: all 1s ease-in-out;
+      white-space: nowrap;
 
-      &.fixedFont {
-        transform: scale(0.75) translate(-155%, -15%);
+      >span {
+        font-size: 0.5em;
+      }
+
+      &.transformFont {
+        transform: scale(0.75) translate(-15%, 0);
         text-shadow: unset;
       }
     }
 
-    h2,
-    h3 {
-      text-shadow: 0 0 20px rgba(#FFD8D8, 0.4);
-    }
-
     #logo {
-      flex-direction: column;
-      justify-content: center;
-
-      >div:first-child {
-        height: 1.25em;
-
-        &.hideLogo {
-          opacity: 0;
-          height: 0;
-        }
-      }
-
-      >div:last-child {
-        gap: 0.25em;
-        flex-direction: row;
-        align-items: flex-end;
-      }
-
-      * {
-        transition: all 0.75s ease-in-out;
+      >div:not(:last-child) {
+        position: absolute;
+        bottom: 100%;
       }
     }
 

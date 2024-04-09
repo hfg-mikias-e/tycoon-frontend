@@ -87,7 +87,7 @@ img {
 }
 
 svg {
-  color: v.$text-color;
+  //color: v.$text-color;
   aspect-ratio: 1 / 1;
   display: inline-block;
   height: 1em;
@@ -107,6 +107,7 @@ h4 {
   margin: 0;
   width: fit-content;
   -webkit-font-smoothing: subpixel-antialiased;
+  display: inline-block;
 
   &.accent-primary {
     color: v.$primary-color;
@@ -141,11 +142,45 @@ input {
     "Lato", sans-serif;
 }
 
+input {
+  background: none;
+  border: none;
+  border-bottom: 1px solid v.$text-color;
+  color: v.$text-color;
+}
+
 a {
   text-decoration: none;
   display: inline;
   color: v.$text-color;
   margin: 0;
+}
+
+button {
+  border-radius: 0.5em;
+  background: none;
+  margin: 0;
+  color: v.$text-color;
+  border: none;
+  box-sizing: border-box;
+  pointer-events: auto;
+  display: flex;
+  justify-content: center;
+  text-transform: uppercase;
+  align-items: center;
+  vertical-align: middle;
+  text-decoration: none;
+  gap: 0.5em;
+  font-weight: bold;
+  white-space: nowrap;
+
+  &:enabled:hover {
+    cursor: pointer;
+  }
+
+  &:enabled:active {
+    transform: translateY(0.2em);
+  }
 }
 
 img,

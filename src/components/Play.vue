@@ -142,6 +142,14 @@
     watch: {
       ready(isReady) {
         if (isReady) {
+          console.log("READY!")
+
+          // reset any changes from the last round
+          this.players = []
+          this.revolution = false
+          this.lastPlayed = {} as Player
+          this.currentCards = []
+
           this.$socket.emit("setLoaded", this.roomID, this.$store.state.userID)
         }
       },
@@ -154,6 +162,11 @@
               this.playing = false
               this.$emit("closeGame")
             }, this.delayTime)
+
+            // no more turns
+            this.players.forEach((player: Player) => {
+              player.turn = false
+            })
             break
           }
           case 1: {
@@ -161,7 +174,6 @@
             const lastPlayer = this.players.find((index: Player) => index.rank === 0 && !index.left)
             // only one player left after game has started?
             if (lastPlayer && this.playing) {
-              console.log("playersLeft")
               lastPlayer.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
             }
           }
@@ -213,7 +225,6 @@
       setRank(userID: string) {
         const player = this.players.find((index: Player) => index.id === userID)
         if (player) {
-          console.log("setRank")
           player.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
         }
       },
@@ -279,27 +290,26 @@
       newTurn() {
         this.selection = []
 
-        const currentPlayer = this.players.findIndex((index: Player) => index.turn)
-        let nextPlayer = currentPlayer
+        if (this.playersLeft > 0) {
+          const currentPlayer = this.players.findIndex((index: Player) => index.turn)
+          let nextPlayer = currentPlayer
 
-        // did the player that would be next leave or finish yet? -> skip
-        while ((this.players[nextPlayer].rank > 0 || this.players[nextPlayer].left || nextPlayer === currentPlayer) && this.playersLeft > 0) {
-          if (nextPlayer < this.players.length - 1) {
-            nextPlayer++
-          } else {
-            nextPlayer = 0
+          // did the player that would be next leave or finish yet? -> skip
+          while ((this.players[nextPlayer].rank > 0 || this.players[nextPlayer].left || nextPlayer === currentPlayer) && this.playersLeft > 0) {
+            if (nextPlayer < this.players.length - 1) {
+              nextPlayer++
+            } else {
+              nextPlayer = 0
+            }
           }
 
-          // might get stuck at the end when all players have finished
-          console.log("stuck in loop")
-        }
+          this.players[currentPlayer].turn = false
+          this.players[nextPlayer].turn = true
 
-        this.players[currentPlayer].turn = false
-        this.players[nextPlayer].turn = true
-
-        // start a new stack if all players have passed (player has turn again who played the last currentCards)
-        if (this.players[nextPlayer].id === this.lastPlayed.id) {
-          this.currentCards = []
+          // start a new stack if all players have passed (player has turn again who played the last currentCards)
+          if (this.players[nextPlayer].id === this.lastPlayed.id) {
+            this.currentCards = []
+          }
         }
       },
 
@@ -353,8 +363,9 @@
             // exception: jokers can be combined with the cards of another value (find a card value inside the hand that has enough cards)
             let jokerAvailable = true
             if (num == 16) {
+              // keep enabled if a higher (/lower if revolution) value than the currentCards can meet the amount needed together with the joker
               this.player.hand.forEach((card: Card) => {
-                if (this.player.hand.filter((index: Card) => index.num === card.num).length + this.player.hand.filter((index: Card) => index.num === 16).length >= this.currentCards.length && card.num > this.currentCards[0].num) {
+                if (this.player.hand.filter((index: Card) => index.num === card.num).length + this.player.hand.filter((index: Card) => index.num === 16).length >= this.currentCards.length && ((this.revolution && card.num < this.currentCards[0].num) || (!this.revolution && card.num > this.currentCards[0].num))) {
                   jokerAvailable = false
                 }
               })
@@ -394,7 +405,9 @@
   @use "variables" as v;
 
   #play {
-    margin: calc(-1*v.$viewport-padding-vertical) calc(-1*v.$viewport-padding-horizontal);
+    position: fixed;
+    left: 0;
+    top: 0;
     height: 100vh;
     width: 100vw;
     justify-content: space-between;

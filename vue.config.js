@@ -3,6 +3,10 @@ module.exports = {
   pwa: {
     name: "TYCOONline",
     themeColor: '#530000',
+    handle_links: "preferred",
+    launch_handler: {
+      client_mode: "navigate-existing"
+    }
   },
   chainWebpack: (config) => {
     config.plugin('define').tap((definitions) => {

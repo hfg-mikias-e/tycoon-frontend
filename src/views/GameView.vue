@@ -1,63 +1,69 @@
 <template>
-  <div id="game" v-if="entry">
-    <Transition name="fade" mode="out-in">
-      <div id="lobby" v-if="!started">
-        <div>
-          <h1>Game <span class="accent-primary">#{{ roomID }}</span></h1>
-          <div v-if="$route.name === 'party'">
-            <p>Invite your friends to this party over the following link</p>
-            <div id=" link">
-              <p>Invite your friends to this party by sharing the following link:</p>
-              <input readonly :value="link">
-              <Button class="primary" icon="fa-regular fa-clipboard">Copy</Button>
+  <div id="game">
+    <template v-if="entry">
+      <Transition name="fade" mode="out-in">
+        <div id="lobby" v-if="!started">
+          <div>
+            <h1>Game <span class="accent-primary">#{{ roomID }}</span></h1>
+            <div v-if="$route.name === 'party'">
+              <p>Invite your friends to this party over the following link:</p>
+              <div id="link">
+                <input readonly :value="link.pathname">
+                <Button class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
+                  @click="copyToClipboard">Copy</Button>
+              </div>
+              <p class="note">Note that you can currently invite
+                <span v-if="maxPlayers - players.length === 0">no</span>
+                <b v-else>{{ maxPlayers - players.length }}</b>
+                more player<span v-if="maxPlayers - players.length !== 1">s</span>.
+              </p>
             </div>
-            <p class="note">Note that you can currently invite
-              <span v-if="maxPlayers - players.length === 0">no</span>
-              <b v-else>{{ maxPlayers - players.length }}</b>
-              more player<span v-if="maxPlayers - players.length !== 1">s</span>.
-            </p>
-          </div>
-          <p v-else>This is an open game which can be joined by anyone!<br />
-            Note that this game needs 4 players before the it can be started.
-          </p>
-
-          <Transition name="fade">
-            <div v-if="showCounter">
-              <h1>The game starts in...</h1>
-              <Counter :number="counter" />
+            <div v-else>
+              <p>This is an open game which can be joined by anyone!</p>
+              <p class="note">Note that this game needs 4 players before the it can be started.</p>
             </div>
-            <Button v-else class="primary" @click="$socket.emit('setReady', roomID, $store.state.userID)">I'm
-              ready!</Button>
-          </Transition>
-        </div>
 
-        <div id="lobbySlots">
-          <div id="slot" :class="{ ready: player.ready }" v-for="(player, index) in players" :key="index">
-            <Badge v-if="player.id === $store.state.userID">YOU</Badge>
-            <p>{{ player.name }}</p>
-            <Badge v-if="player.ready">READY!</Badge>
-            <p v-else>not ready yet</p>
+            <TransitionGroup name="fade">
+              <div v-if="showCounter">
+                <h1>The game starts in...</h1>
+                <Counter :number="counter" />
+              </div>
+              <Button v-else class="primary"
+                @click="$socket.emit('setReady', roomID, $store.state.userID, !players.find((player: Player) => player.id === $store.state.userID)?.ready)">I'm
+                ready!</Button>
+            </TransitionGroup>
           </div>
-          <div id="slot" class="empty" v-for="index in (maxPlayers - players.length) " :key="index">waiting for
-            another
-            player ...</div>
+
+          <div>
+            <div id="lobbySlots">
+              <div id="slot" :class="{ ready: player.ready }" v-for="(player, index) in players" :key="index">
+                <Badge v-if="player.id === $store.state.userID">YOU</Badge>
+                <p>{{ player.name }}</p>
+                <Badge v-if="player.ready">READY!</Badge>
+                <p v-else>not ready yet</p>
+                <div id="spacer"></div>
+              </div>
+              <div id="slot" class="empty" v-for="index in (maxPlayers - players.length) " :key="index">waiting ...
+                <div id="spacer"></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </Transition>
-    <Transition name="fade" mode="out-in">
-      <Play v-show="started" :lobby="players" :roomID="roomID" :ready="started"
-        @closeGame="started = false; $socket.emit('startGame', roomID, false)" />
-    </Transition>
-  </div>
-  <div v-else>
-    <p>Sorry, could not join.</p>
+      </Transition>
+      <Transition name="fade" mode="out-in">
+        <Play v-show="started" :lobby="players" :roomID="roomID" :ready="started" @closeGame="resetGame" />
+      </Transition>
+    </template>
+    <div v-else>
+      <p>Sorry, this game is either full or has already started. Please try a different game.</p>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
   import { defineComponent } from "vue"
   import Button from "@/components/Button.vue"
-  import Badge from "@/components/Badge.vue"
+  //import Badge from "@/components/Badge.vue"
   import Counter from "@/components/Counter.vue"
   import Play from "@/components/Play.vue"
 
@@ -71,7 +77,7 @@
     name: "HomeView",
     components: {
       Button,
-      Badge,
+      //Badge,
       Play,
       Counter
     },
@@ -87,7 +93,8 @@
       return {
         players: [] as Player[],
         maxPlayers: 4,
-        link: window.location.href,
+        link: window.location,
+        copied: false,
 
         counter: 3,
         showCounter: false,
@@ -98,65 +105,72 @@
 
     methods: {
       startGame() {
-        // start if everyone is ready
-        if (!this.players.some((index: Player) => !index.ready)) {
-          // if the game is not a custom party it requires 4 players to start, otherwise at least 2
-          if ((this.$route.name === 'party' && this.players.length > 1) || (this.$route.name === 'random' && this.players.length === this.maxPlayers)) {
-            this.$socket.emit("startGame", this.roomID, true)
-            this.showCounter = true
+        // if the game is not a custom party it requires 4 players to start, otherwise at least 2
+        if (this.players.length > 0 /*(this.$route.name === 'party' && this.players.length > 1) || (this.$route.name === 'random' && this.players.length === this.maxPlayers)*/) {
+          this.$socket.emit("startGame", this.roomID, true)
+          this.showCounter = true
 
-            setTimeout(() => {
-              const count = setInterval(() => {
-                if (this.counter > 0) {
-                  this.counter--
-                } else {
-                  clearInterval(count)
-                  this.started = true
-                  this.$emit("showHeader", false)
-                }
-              }, 1200)
-            }, 500)
-          }
+          setTimeout(() => {
+            const count = setInterval(() => {
+              if (this.counter > 0) {
+                this.counter--
+              } else {
+                clearInterval(count)
+                this.started = true
+                this.$emit("showHeader", false)
+              }
+            }, 1200)
+          }, 500)
         }
+      },
+
+      async resetGame() {
+        console.log("this is not supposed to fire.")
+
+        // set all ready states back to the default
+        await this.players.forEach((player: Player) => {
+          this.$socket.emit("setReady", this.roomID, player.id, false)
+        })
+
+        // reset all to default value
+        this.started = false
+        this.showCounter = false
+        this.counter = 3
+        this.$emit("showHeader", true)
+
+        this.$socket.emit('startGame', this.roomID, false)
+      },
+
+      copyToClipboard() {
+        navigator.clipboard.writeText(this.link.href).then(() => {
+          this.copied = true
+        });
       }
     },
 
     sockets: {
-      updateRoom(data: Array<string>) {
+      updateRoom(data: Array<Player>) {
+        console.log("updateRoom")
         // allow joining the room
         this.entry = true
+        this.players = data.map(index => ({ ...index, name: this.clients?.find((player: Player) => player.id === index.id).name }))
 
-        let newPlayers: Player[] = []
-        data.forEach((userID, i) => {
-          const player = this.players.find((index: Player) => index.id = userID)
-          // compare to all ready states of the current players and overwrite the value if a player is still in the lobby
-          newPlayers[i] = {
-            id: data[i],
-            name: this.clients?.find((index: Player) => index.id === data[i]).name,
-            ready: player ? player.ready : false
-          }
-        })
-        this.players = newPlayers
-
-        this.startGame()
-      },
-
-      changeReady(userID: string) {
-        const player = this.players.find((index: Player) => index.id === userID)
-        if (player) {
-          player.ready = !player.ready
+        // start if everyone is ready
+        if (!this.players.some((index: Player) => !index.ready)) {
+          this.startGame()
         }
-
-        this.startGame()
       }
     },
 
     mounted() {
+      console.log("HUAHAUAHUUAH")
       this.$socket.emit("moveRoom", this.roomID, "join")
     },
 
     beforeUnmount() {
-      this.$socket.emit("moveRoom", this.roomID, "leave")
+      if (this.entry) {
+        this.$socket.emit("moveRoom", this.roomID, "leave")
+      }
       this.$emit("showHeader", true)
     }
   })
@@ -167,44 +181,49 @@
 
   #game {
     #lobby {
-      border: 1px solid pink;
       height: 100%;
+      width: 100%;
       flex-direction: row;
       gap: v.$viewport-padding-horizontal;
       justify-content: space-between;
 
       >div {
-        height: 100%;
         gap: calc(0.5*v.$viewport-padding-vertical);
 
-        &:first-child {
-          max-width: 25%;
+        &:last-child {
+          display: block;
+          flex-grow: 1;
         }
       }
 
       #link {
-        border: 1px solid pink;
+        flex-direction: row;
+        gap: 0.5em;
+
+        input {
+          flex-grow: 1;
+          text-overflow: ellipsis;
+        }
       }
     }
 
     #lobbySlots {
-      border: 2px red solid;
-      flex-direction: row;
+      max-height: 100%;
+      aspect-ratio: 1 / 1;
+      gap: calc(0.25*v.$viewport-padding-horizontal);
+      margin-left: auto;
 
-      @media (min-height: 520px) {
-        aspect-ratio: 1;
-        max-width: 100%;
-        max-height: 100%;
+      @media (min-height: 0) {
+        // 520px
         display: grid;
         grid-template-columns: 1fr 1fr;
       }
 
       #slot {
-        border-radius: 0.75em;
+        aspect-ratio: 1 / 1;
+        border-radius: 0.5em;
         background-color: rgba(v.$text-color, 0.2);
         overflow: hidden;
-        aspect-ratio: 1/1;
-        width: 100%;
       }
     }
   }

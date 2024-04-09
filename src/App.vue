@@ -1,98 +1,125 @@
 <template>
-  <p id="test">{{ clients }}</p>
-  <TransitionGroup name="header" v-if="allowed">
-    <Header key="header" v-if="showHeader"
-      :username="clients.find(index => index.id === $store.state.userID)?.name" />
-    <div key=router id="router">
-      <router-view v-slot="{ Component }">
-        <Transition name="fade" mode="out-in">
-          <component :is="Component" :clients="clients" @showHeader="(show: boolean) => showHeader = show" />
-        </Transition>
-      </router-view>
+  <p id="test"></p>
+  <Transition name="fade">
+    <div id="blocker" v-if="!viewportHorizontal">
+      <p>Please rotate your device into landscape mode (or increase the width of your window).</p>
+      <div id="phone">
+        <icon icon="mobile-screen" />
+        <icon id="rotate" icon="rotate-left" />
+      </div>
     </div>
-  </TransitionGroup>
+  </Transition>
+  <Transition name="header" v-if="allowed">
+    <Header v-if="showHeader" :username="clients.find(index => index.id === $store.state.userID)?.name" />
+  </Transition>
+  <div id="router" v-if="allowed">
+    <router-view v-slot="{ Component }">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" :clients="clients" @showHeader="(show: boolean) => showHeader = show" />
+      </Transition>
+    </router-view>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import Button from "@/components/Button.vue"
-import Header from "@/components/Header.vue"
-import { v4 as uuidv4 } from "uuid"
+  import { defineComponent } from "vue"
+  import Button from "@/components/Button.vue"
+  import Header from "@/components/Header.vue"
+  import { v4 as uuidv4 } from "uuid"
 
-interface Client {
-  id: string,
-  name: string,
-  socket: string
-}
-
-export default defineComponent({
-  name: "HomeView",
-  components: {
-    Button,
-    Header,
-  },
-
-  data() {
-    return {
-      connected: false,
-      allowed: false,
-      clients: [] as Client[],
-      showHeader: true
-    }
-  },
-
-  sockets: {
-    async connect() {
-      this.connected = true
-
-      if (!this.$store.state.userID) {
-        await this.$store.dispatch("setID", uuidv4())
-      }
-
-      this.$socket.emit("connectUser", this.$store.state.userID)
-    },
-
-    updateUsers(clients: Array<Client>) {
-      console.log("updateUsers")
-      this.clients = clients
-      this.allowed = true
-    },
-
-    redirectBack() {
-      console.log("redirectBack")
-      this.$router.push("/")
-    },
-
-    disconnect() {
-      this.$router.push("/")
-      console.log("disconnected.")
-    }
+  interface Client {
+    id: string,
+    name: string,
+    socket: string
   }
-})
 
-/*
-export default {
-  setup() {
-    //socket.connect()
-
-    const connected = ref(false)
-    const allowed = ref(false)
-    const clients = ref([])
-
-    socket.on("connect", () => {
-      console.log("ELFOSIHGSBOEIH")
-    })
-
-    return {
+  export default defineComponent({
+    name: "HomeView",
+    components: {
       Button,
       Header,
-      connected,
-      allowed,
-      clients
+    },
+
+    data() {
+      return {
+        connected: false,
+        allowed: false,
+        clients: [] as Client[],
+        showHeader: true,
+        viewportHorizontal: true
+      }
+    },
+
+    sockets: {
+      async connect() {
+        this.connected = true
+
+        if (!this.$store.state.userID) {
+          await this.$store.dispatch("setID", uuidv4())
+        }
+
+        this.$socket.emit("connectUser", this.$store.state.userID)
+      },
+
+      updateUsers(clients: Array<Client>) {
+        this.clients = clients
+        this.allowed = true
+      },
+
+      redirectBack() {
+        console.log("redirectBack")
+        this.$router.push("/")
+      }
+    },
+
+    methods: {
+      checkViewportSize() {
+        if (window.innerHeight < window.innerWidth) {
+          this.viewportHorizontal = true
+        } else {
+          this.viewportHorizontal = false
+        }
+      }
+    },
+
+    created() {
+      this.checkViewportSize()
+      window.addEventListener("resize", () => {
+        this.checkViewportSize()
+      })
+    },
+
+    beforeUnmount() {
+      //this.$socket.emit("disconnect")
+      window.removeEventListener("resize", () => {
+        this.checkViewportSize()
+      })
+    },
+  })
+
+  /*
+  export default {
+    setup() {
+      //socket.connect()
+  
+      const connected = ref(false)
+      const allowed = ref(false)
+      const clients = ref([])
+  
+      socket.on("connect", () => {
+        console.log("ELFOSIHGSBOEIH")
+      })
+  
+      return {
+        Button,
+        Header,
+        connected,
+        allowed,
+        clients
+      }
     }
   }
-}
-*/
+  */
 </script>
 
 <style lang="scss">
@@ -100,26 +127,67 @@ export default {
   @import "./style.scss";
 
   #test {
+    position: absolute;
+  }
+
+  #blocker {
+    width: 100vw;
+    height: 100vh;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    display: none;
+    background-color: rgba(v.$background-color, 0.9);
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+    gap: calc(0.5*v.$viewport-padding-vertical);
+    color: v.$text-color;
+    padding: 25%;
+
+    p {
+      text-align: center;
+    }
+
+
+    #phone {
+      max-height: 4em;
+      height: 80vw;
+      align-items: center;
+      gap: calc(0.5*v.$viewport-padding-vertical);
+
+      svg {
+        &:first-child {
+          max-height: 4em;
+          height: 80vw;
+          animation: phone-rotate 3s infinite;
+        }
+      }
+
+      @keyframes phone-rotate {
+        20% {
+          margin: 0;
+          transform: rotate(0deg);
+        }
+
+        50%,
+        90% {
+          margin-bottom: -0.75em;
+          transform: rotate(-90deg);
+        }
+
+        100% {
+          transform: rotate(-360deg);
+        }
+      }
+    }
   }
 
   #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-
     #router {
       overflow: hidden;
       flex-grow: 1;
 
       >div:last-child {
         // router container
-        padding: v.$viewport-padding-vertical v.$viewport-padding-horizontal;
+        padding: v.$viewport-padding-vertical calc(2*v.$viewport-padding-horizontal);
         height: 100%;
       }
     }
