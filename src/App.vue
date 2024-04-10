@@ -1,5 +1,5 @@
 <template>
-  <p id="test">{{ viewportOrientation }}</p>
+  <p id="test"></p>
   <Transition name="fade">
     <div id="blocker" v-if="viewportOrientation.includes('portrait')">
       <p>Please rotate your device into landscape mode.</p>

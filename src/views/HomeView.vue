@@ -1,5 +1,13 @@
 <template>
   <div id="home">
+    <Transition name="fade">
+      <Alert v-if="!partyExists" class="error" @closeAlert="partyExists = true">Sorry, your clipboard does not contain
+        a valid PartyID.</Alert>
+    </Transition>
+    <Transition name="fade">
+      <Alert v-if="clipboardNotAllowed" class="warning" @closeAlert="clipboardNotAllowed = false">Your browser seems to
+        be blocking your clipboard! Please try again by allowing this action when you press the button.</Alert>
+    </Transition>
     <div id="actions">
       <Button class="primary" @click="joinGame('party')" buttonClass="primary">
         create your own party
@@ -23,17 +31,21 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import Button from "@/components/Button.vue"
+  import Alert from '@/components/Alert.vue'
 
   export default defineComponent({
     name: "HomeView",
     components: {
-      Button
+      Button,
+      Alert
     },
 
     data() {
       return {
         partyID: "",
-        clipboard: ""
+        clipboard: "",
+        partyExists: true,
+        clipboardNotAllowed: false
       }
     },
 
@@ -60,9 +72,9 @@
         this.$router.push({ name: roomType, params: { roomID } })
       },
 
-      partyExists(exists: string) {
-        this.clipboard = exists
-        console.log("exists: " + this.clipboard)
+      partyExists(partyID: string) {
+        this.clipboard = partyID
+        this.partyExists = partyID !== ""
       }
     },
 
@@ -79,7 +91,7 @@
             const clipboardString = await navigator.clipboard.readText()
             this.$socket.emit("checkForParty", clipboardString)
           } catch {
-            alert('Your browser seems to be blocking your clipboard! Please try again by allowing this action when pressing "join" or change it in the settings of your browser.')
+            this.clipboardNotAllowed = true
           }
         }
       }

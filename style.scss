@@ -11,7 +11,6 @@
   position: relative;
 
   -webkit-overflow-scrolling: touch;
-  //transition: all 0.2s ease-in-out;
 
   user-select: none; // chrome and Opera
   -moz-user-select: none; // Firefox
@@ -48,7 +47,7 @@ body {
   position: fixed;
 
   @media (max-height: 400px) {
-    font-size: 4vh;
+    font-size: 3.5vh;
   }
 }
 

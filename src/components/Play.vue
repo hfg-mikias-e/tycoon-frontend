@@ -441,6 +441,7 @@
 
     >div:first-child {
       flex-direction: row;
+      align-items: flex-end;
       justify-content: space-between;
       gap: 1em;
     }
@@ -491,6 +492,7 @@
   }
 
   #slot {
+    transition: all 0.2s ease-in-out;
     background-color: rgba(v.$text-color, 0.2);
     padding: 0.75em 1em;
     align-items: center;

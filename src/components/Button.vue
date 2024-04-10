@@ -21,11 +21,11 @@
 
   button {
     font-size: 1.125em;
+    transition: border 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-out;
 
     &.primary,
     &.secondary {
-      padding: 0.75em 1.25em;
-      border: 0.125em;
+      padding: 0.75em 1em;
 
       &:disabled {
         opacity: 0.2;
@@ -37,26 +37,27 @@
       color: v.$background-color;
 
       &:enabled:hover {
-        * {
-          color: v.$primary-color;
-        }
+        background: v.$secondary-color;
+      }
 
-        background: rgba(v.$primary-color, 0.8);
+      &:enabled:active {
+        background: v.$primary-color;
       }
     }
 
     &.secondary {
       color: white;
-      border: 1px solid v.$text-color;
+      border: 2px solid v.$text-color;
       background: inherit;
 
       &:enabled:hover {
-        * {
-          color: v.$primary-color;
-        }
+        color: v.$secondary-color;
+        border-color: rgba(v.$secondary-color, 0.6);
+      }
 
+      &:enabled:active {
         color: v.$primary-color;
-        border: 1px solid rgba(v.$primary-color, 0.6);
+        border-color: rgba(v.$primary-color, 0.6);
       }
     }
   }

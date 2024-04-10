@@ -28,13 +28,13 @@
   #cardButton {
     width: 200%;
     box-shadow: -2px 0 2px rgba(v.$background-color, 0.4);
+    transition: all 0.25s ease-in-out;
     border-radius: 4%;
     overflow: hidden;
     background: rgb(75, 9, 9);
 
     &:hover:not(.selected) {
       transform: translateY(-0.25em);
-      transition: 0.2s;
     }
 
     &:disabled {
@@ -43,7 +43,6 @@
 
     img {
       height: 100%;
-      //filter: invert(1);
       opacity: 0.75;
       pointer-events: "none";
     }
