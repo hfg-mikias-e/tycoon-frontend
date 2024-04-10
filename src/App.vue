@@ -1,7 +1,7 @@
 <template>
   <p id="test"></p>
   <Transition name="fade">
-    <div id="blocker" v-if="!viewportHorizontal">
+    <div id="blocker" v-if="viewportOrientation.includes('portrait')">
       <p>Please rotate your device into landscape mode (or increase the width of your window).</p>
       <div id="phone">
         <icon icon="mobile-screen" />
@@ -46,7 +46,7 @@
         allowed: false,
         clients: [] as Client[],
         showHeader: true,
-        viewportHorizontal: true
+        viewportOrientation: ""
       }
     },
 
@@ -72,27 +72,20 @@
       }
     },
 
-    methods: {
-      checkViewportSize() {
-        if (window.innerHeight < window.innerWidth) {
-          this.viewportHorizontal = true
-        } else {
-          this.viewportHorizontal = false
-        }
-      }
-    },
-
     created() {
-      this.checkViewportSize()
-      window.addEventListener("resize", () => {
-        this.checkViewportSize()
-      })
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        alert("This is running as standalone.");
+      }
+
+      this.viewportOrientation = screen.orientation.type
+      window.addEventListener("orientationchange", () => {
+        this.viewportOrientation = screen.orientation.type
+      });
     },
 
     beforeUnmount() {
-      //this.$socket.emit("disconnect")
-      window.removeEventListener("resize", () => {
-        this.checkViewportSize()
+      window.removeEventListener("orientationchange", () => {
+        this.viewportOrientation = screen.orientation.type
       })
     },
   })

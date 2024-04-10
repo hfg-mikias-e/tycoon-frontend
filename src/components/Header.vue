@@ -56,21 +56,9 @@
       height: fit-content;
     }
 
-    // TYCOON
-    h2 {
-      font-size: 3.25em;
-      line-height: 0.8;
-      letter-spacing: -4px;
-
-      &.fixedFont {
-        transform: scale(0.75) translate(-15%, 0);
-        text-shadow: unset;
-      }
-    }
-
     // TYCOONLINE
     h2 {
-      font-size: 3.75em;
+      font-size: 3.25em;
       letter-spacing: -2px;
       line-height: 0.75;
       text-shadow: 0 0 20px rgba(#FFD8D8, 0.4);
