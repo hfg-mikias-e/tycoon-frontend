@@ -459,7 +459,7 @@
         background-color: inherit;
         top: 100%;
         width: 100%;
-        height: 20vh;
+        height: 100vh;
       }
 
       >#badge {

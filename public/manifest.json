@@ -1,6 +1,7 @@
 {
     "name": "TYCOONline",
     "short_name": "TYCOONline",
+    "themeColor": "#260707",
     "icons": [
         {
             "src": "./img/icons/android-chrome-192x192.png",
@@ -26,6 +27,7 @@
     ],
     "start_url" :"/",
     "display": "standalone",
+    "orientation":  "landscape",
     "handle_links": "preferred",
     "launch_handler": {
       "client_mode": "navigate-existing"

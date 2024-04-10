@@ -1,13 +1,11 @@
 // vue.config.js
 module.exports = {
+  /*
   pwa: {
     name: "TYCOONline",
-    themeColor: '#530000',
-    handle_links: "preferred",
-    launch_handler: {
-      client_mode: "navigate-existing"
-    }
+    themeColor: '#530000'
   },
+  */
   chainWebpack: (config) => {
     config.plugin('define').tap((definitions) => {
       Object.assign(definitions[0], {
