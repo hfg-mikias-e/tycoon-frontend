@@ -1,8 +1,8 @@
 <template>
-  <p id="test"></p>
+  <p id="test">{{ viewportOrientation }}</p>
   <Transition name="fade">
     <div id="blocker" v-if="viewportOrientation.includes('portrait')">
-      <p>Please rotate your device into landscape mode (or increase the width of your window).</p>
+      <p>Please rotate your device into landscape mode.</p>
       <div id="phone">
         <icon icon="mobile-screen" />
         <icon id="rotate" icon="rotate-left" />
@@ -73,10 +73,6 @@
     },
 
     created() {
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        alert("This is running as standalone.");
-      }
-
       this.viewportOrientation = screen.orientation.type
       window.addEventListener("orientationchange", () => {
         this.viewportOrientation = screen.orientation.type
