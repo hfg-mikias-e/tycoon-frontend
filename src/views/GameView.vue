@@ -7,7 +7,6 @@
       <Transition name="fade" mode="out-in">
         <div id="lobby" v-if="!started">
           <div>
-            {{ shareContent }}
             <h1>Game <span class="accent-primary">#{{ roomID }}</span></h1>
             <div v-if="$route.name === 'party'">
               <p>Invite your friends to this party over the following link:</p>
