@@ -1,5 +1,4 @@
 <template>
-  <p>{{ playing }}</p>
   <div id="play" v-if="playing">
     <div id="playerSlots">
       <div id="slot" :class="{ turn: player.turn, left: player.left, done: player.rank > 0 }"
@@ -218,6 +217,7 @@
         })
 
         this.playing = true
+        alert("playing!")
       },
 
       passTurn() {
