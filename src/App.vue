@@ -61,6 +61,10 @@
         this.$socket.emit("connectUser", this.$store.state.userID)
       },
 
+      disconnect() {
+        alert("you disconnected.")
+      },
+
       updateUsers(clients: Array<Client>) {
         this.clients = clients
         this.allowed = true
