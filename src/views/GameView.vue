@@ -1,7 +1,7 @@
 <template>
   <div id="game">
-    <p>{{ started }}</p>
     <template v-if="entry">
+      <p>{{ started }}</p>
       <Transition name="fade" mode="out-in">
         <div id="lobby" v-if="!started">
           <div>
