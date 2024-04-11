@@ -110,8 +110,7 @@
         shared: false,
         shareable: false,
         shareContent: {
-          title: "Let's play Tycoon together!",
-          text: "Join my party now (for PWA users: if the following link does not open correctly, copy it to your clipboard and hit join party inside your App)!",
+          text: "Let's play Tycoon together! Join my party now (for WebApp users: if the following link does not open correctly, copy it to your clipboard and hit join party inside the App)!",
           url: window.location.href
         }
       }
@@ -156,9 +155,17 @@
       },
 
       copyToClipboard() {
-        navigator.clipboard.writeText(this.link.href).then(() => {
+        /*
+        navigator.clipboard.writeText(this.shareContent.text + " " ).then(() => {
           this.copied = true
         });
+        */
+        navigator.clipboard.write([
+          new ClipboardItem({
+            "text/plain": Promise.resolve(this.shareContent.text),
+            "text/html": Promise.resolve(`<a>${this.shareContent.url}</a>`),
+          }),
+        ]);
       },
 
       shareLink() {
