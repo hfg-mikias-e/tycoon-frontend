@@ -200,10 +200,7 @@
           name: player.name
         })
 
-        console.log("playerAdded")
-        console.log(this.players)
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
-          console.log("Karten!")
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
           this.$socket.emit("getCards", this.roomID)
         }

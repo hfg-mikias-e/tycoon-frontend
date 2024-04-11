@@ -17,6 +17,12 @@
     },
 
     emits: ["closeAlert"],
+
+    mounted() {
+      setTimeout(() => {
+        this.$emit('closeAlert')
+      }, 5000)
+    }
   })
 </script>
 

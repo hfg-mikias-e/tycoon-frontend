@@ -1,7 +1,6 @@
 <template>
   <div id="game">
     <template v-if="entry">
-      <p>{{ started }}</p>
       <Transition name="fade" mode="out-in">
         <div id="lobby" v-if="!started">
           <div>
@@ -64,7 +63,7 @@
 <script lang="ts">
   import { defineComponent } from "vue"
   import Button from "@/components/Button.vue"
-  //import Badge from "@/components/Badge.vue"
+  import Badge from "@/components/Badge.vue"
   import Counter from "@/components/Counter.vue"
   import Play from "@/components/Play.vue"
 
@@ -78,7 +77,7 @@
     name: "HomeView",
     components: {
       Button,
-      //Badge,
+      Badge,
       Play,
       Counter
     },
@@ -164,7 +163,6 @@
     },
 
     mounted() {
-      console.log("HUAHAUAHUUAH")
       this.$socket.emit("moveRoom", this.roomID, "join")
     },
 

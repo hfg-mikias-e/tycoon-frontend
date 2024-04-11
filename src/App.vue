@@ -1,6 +1,9 @@
 <template>
   <p id="test"></p>
   <Transition name="fade">
+    <Alert v-if="notAvailable" class="error" @closeAlert="notAvailable = false">Sorry, this game does not exist anymore.</Alert>
+  </Transition>
+  <Transition name="fade">
     <div id="blocker" v-if="viewportOrientation.includes('portrait')">
       <p>Please rotate your device into landscape mode.</p>
       <div id="phone">
@@ -25,6 +28,7 @@
   import { defineComponent } from "vue"
   import Button from "@/components/Button.vue"
   import Header from "@/components/Header.vue"
+  import Alert from "@/components/Alert.vue"
   import { v4 as uuidv4 } from "uuid"
 
   interface Client {
@@ -38,6 +42,7 @@
     components: {
       Button,
       Header,
+      Alert
     },
 
     data() {
@@ -45,6 +50,7 @@
         connected: false,
         allowed: false,
         clients: [] as Client[],
+        notAvailable: false,
         showHeader: true,
         viewportOrientation: ""
       }
@@ -72,6 +78,7 @@
 
       redirectBack() {
         this.$router.push("/")
+        this.notAvailable = true
       }
     },
 
