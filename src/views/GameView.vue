@@ -110,7 +110,7 @@
         shared: false,
         shareable: false,
         shareContent: {
-          text: "Let's play Tycoon together! Join my party now (for WebApp users: if the following link does not open correctly, copy it to your clipboard and hit join party inside the App)!",
+          text: "Let's play Tycoon together! Join my party now (WebApp users: if the following link does not open correctly, copy it to your clipboard and hit \"join someone's party\" inside the App)!",
           url: window.location.href
         }
       }
