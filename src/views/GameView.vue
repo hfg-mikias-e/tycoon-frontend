@@ -7,6 +7,7 @@
       <Transition name="fade" mode="out-in">
         <div id="lobby" v-if="!started">
           <div>
+            {{ shareContent }}
             <h1>Game <span class="accent-primary">#{{ roomID }}</span></h1>
             <div v-if="$route.name === 'party'">
               <p>Invite your friends to this party over the following link:</p>
@@ -111,7 +112,7 @@
         shareable: false,
         shareContent: {
           text: "Let's play Tycoon together! Join my party now (WebApp users: if the following link does not open correctly, copy it to your clipboard and hit \"join someone's party\" inside the App)!",
-          url: String(this.link)
+          url: window.location.href
         }
       }
     },
