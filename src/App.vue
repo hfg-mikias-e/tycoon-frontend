@@ -62,7 +62,7 @@
       },
 
       disconnect() {
-        alert("you disconnected.")
+        this.$router.go(0)
       },
 
       updateUsers(clients: Array<Client>) {
@@ -71,7 +71,6 @@
       },
 
       redirectBack() {
-        console.log("redirectBack")
         this.$router.push("/")
       }
     },
