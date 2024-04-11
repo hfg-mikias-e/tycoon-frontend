@@ -198,10 +198,11 @@
         this.players.push({
           ...this.undefinedPlayer,
           id: player.id,
-          name: player.name
+          name: player.name,
+          hand: [] as Card[]
         })
 
-        console.log(this.players)
+        console.log(this.players.length)
 
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
