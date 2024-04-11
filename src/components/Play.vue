@@ -24,6 +24,8 @@
     </div>
 
     <div id="gameSlot">
+      <p>{{ players }}</p>
+      <p>yo: {{ player }}</p>
       <div id="cardRow">
         <TransitionGroup name="card">
           <div v-for="card in currentCards" :key="card.sign + card.num">
@@ -57,7 +59,6 @@
           :disabled="!player?.turn || specialCase !== '' || selection.length === 0 || (currentCards.length > 0 && selection.length !== currentCards.length)"
           class="primary">Play</Button>
       </div>
-      <p>yo: {{ player }}</p>
       <div id="cardRow">
         <TransitionGroup name="hand">
           <div v-for="card in player?.hand" :key="card.sign + card.num">
