@@ -31,7 +31,7 @@
     transition: all 0.25s ease-in-out;
     border-radius: 4%;
     overflow: hidden;
-    background: rgb(75, 9, 9);
+    background-color: #660022;
 
     &:hover:not(.selected) {
       transform: translateY(-0.25em);

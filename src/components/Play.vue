@@ -1,4 +1,5 @@
 <template>
+  <p>{{ playing }}</p>
   <div id="play" v-if="playing">
     <div id="playerSlots">
       <div id="slot" :class="{ turn: player.turn, left: player.left, done: player.rank > 0 }"
@@ -121,6 +122,7 @@
         revolution: false,
         specialCase: "",
         delayTime: 3000,
+        allPass: false,
 
         // cards that were last played
         currentCards: [] as Card[],
@@ -231,6 +233,7 @@
 
       newCurrentCards(cards: Array<Card>) {
         this.lastPlayed = this.players?.find((index: Player) => index.turn) ?? this.undefinedPlayer
+        this.allPass = false
 
         // remove cards from the player hand
         this.players.forEach((player: Player) => {
@@ -309,6 +312,7 @@
           // start a new stack if all players have passed (player has turn again who played the last currentCards)
           if (this.players[nextPlayer].id === this.lastPlayed.id) {
             this.currentCards = []
+            this.allPass = true
           }
         }
       },
