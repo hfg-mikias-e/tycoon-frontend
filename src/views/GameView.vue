@@ -1,6 +1,9 @@
 <template>
   <div id="game">
     <template v-if="entry">
+      <Transition name="fade">
+        <Alert v-if="shared" class="success" @closeAlert="shared = false">Successfully shared the Game!</Alert>
+      </Transition>
       <Transition name="fade" mode="out-in">
         <div id="lobby" v-if="!started">
           <div>
@@ -11,6 +14,7 @@
                 <input readonly :value="link.pathname">
                 <Button class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
                   @click="copyToClipboard">Copy</Button>
+                <Button v-if="shareable" class="secondary" icon="share" @click="shareLink">Share</Button>
               </div>
               <p class="note">Note that you can currently invite
                 <span v-if="maxPlayers - players.length === 0">no</span>
@@ -66,6 +70,7 @@
   import Badge from "@/components/Badge.vue"
   import Counter from "@/components/Counter.vue"
   import Play from "@/components/Play.vue"
+  import Alert from "@/components/Alert.vue"
 
   interface Player {
     id: string,
@@ -79,7 +84,8 @@
       Button,
       Badge,
       Play,
-      Counter
+      Counter,
+      Alert
     },
 
     emits: ["showHeader"],
@@ -99,7 +105,15 @@
         counter: 3,
         showCounter: false,
         started: false,
-        entry: false
+        entry: false,
+
+        shared: false,
+        shareable: false,
+        shareContent: {
+          title: "Let's play Tycoon together!",
+          text: "Join my party now (for PWA users: if the following link does not open correctly, copy it to your clipboard and hit join party inside your App)!",
+          url: window.location.href
+        }
       }
     },
 
@@ -145,6 +159,14 @@
         navigator.clipboard.writeText(this.link.href).then(() => {
           this.copied = true
         });
+      },
+
+      shareLink() {
+        navigator.share(this.shareContent).then(() => {
+          this.shared = true
+        }).catch((error) => {
+          console.log(error)
+        })
       }
     },
 
@@ -164,6 +186,11 @@
 
     mounted() {
       this.$socket.emit("moveRoom", this.roomID, "join")
+
+      // if the sharing function is supported, additionally present a direct share button
+      if (navigator['share'] && navigator.canShare(this.shareContent)) {
+        this.shareable = true
+      }
     },
 
     beforeUnmount() {
