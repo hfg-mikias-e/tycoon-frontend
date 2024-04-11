@@ -1,5 +1,5 @@
 <template>
-  <div id="play" v-if="playing">
+  <div id="play" v-if="playing" style="border: 5px solid green;">
     <div id="playerSlots">
       <div id="slot" :class="{ turn: player.turn, left: player.left, done: player.rank > 0 }"
         v-for="(player, index) in players.filter((index: Player) => index.id !== $store.state.userID)" :key="index">
@@ -200,8 +200,6 @@
           id: player.id,
           name: player.name
         })
-
-        alert("loaded!")
 
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
