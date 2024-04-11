@@ -155,15 +155,10 @@
       },
 
       copyToClipboard() {
-        /*
-        navigator.clipboard.writeText(this.shareContent.text + " " ).then(() => {
-          this.copied = true
-        });
-        */
         navigator.clipboard.write([
           new ClipboardItem({
             "text/plain": Promise.resolve(this.shareContent.text),
-            "text/html": Promise.resolve(`<a>${this.shareContent.url}</a>`),
+            "text/html": Promise.resolve(`<br/><a>${this.shareContent.url}</a>`),
           }),
         ]);
       },
