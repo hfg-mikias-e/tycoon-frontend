@@ -219,6 +219,8 @@
         const hands = handouts[0]
         const firstTurn = handouts[1]
 
+        alert(handouts)
+
         this.players.forEach((player: Player, index: number) => {
           player.hand = hands[index]
           player.turn = index === firstTurn
