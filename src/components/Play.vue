@@ -146,10 +146,12 @@
           console.log("READY!")
 
           // reset any changes from the last round
+          /*
           this.players = []
           this.revolution = false
           this.lastPlayed = {} as Player
           this.currentCards = []
+          */
 
           this.$socket.emit("setLoaded", this.roomID, this.$store.state.userID)
         }
@@ -204,6 +206,7 @@
         console.log(this.players)
         console.log(this.players.length)
 
+        console.log(this.lobby?.length, userID === this.$store.state.userID)
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
           this.$socket.emit("getCards", this.roomID)

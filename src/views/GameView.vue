@@ -27,7 +27,7 @@
               <p class="note">Note that this game needs 4 players before the it can be started.</p>
             </div>
 
-            <p>UPDATE #2</p>
+            <p>UPDATE #3</p>
 
             <TransitionGroup name="fade">
               <div v-if="showCounter">
@@ -57,7 +57,7 @@
         </div>
       </Transition>
       <Transition name="fade" mode="out-in">
-        <Play v-show="started" :lobby="players" :roomID="roomID" :ready="started" @closeGame="resetGame" />
+        <Play v-if="showCounter" v-show="started" :lobby="players" :roomID="roomID" :ready="started" @closeGame="resetGame" />
       </Transition>
     </template>
     <div v-else>
@@ -140,7 +140,7 @@
       },
 
       async resetGame() {
-        console.log("this is not supposed to fire.")
+        console.log("resetGame")
 
         // set all ready states back to the default
         await this.players.forEach((player: Player) => {
