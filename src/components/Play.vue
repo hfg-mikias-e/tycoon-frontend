@@ -201,6 +201,8 @@
           name: player.name
         })
 
+        console.log(this.players)
+
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
           this.$socket.emit("getCards", this.roomID)
@@ -217,7 +219,6 @@
         })
 
         this.playing = true
-        alert("playing!")
       },
 
       passTurn() {
