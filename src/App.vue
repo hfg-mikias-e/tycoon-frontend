@@ -1,33 +1,33 @@
 <template>
-  <div v-if="!connected">
-    <p>The server is still waking up.</p>
-  </div>
-  <div v-if="connected">
-    <p id="test"></p>
-    <Transition name="fade">
-      <Alert v-if="notAvailable" class="error" @closeAlert="notAvailable = false">Sorry, this game does not exist
-        anymore.
-      </Alert>
-    </Transition>
-    <Transition name="fade">
-      <div id="blocker" v-if="viewportOrientation.includes('portrait')">
-        <p>Please rotate your device into landscape mode.</p>
-        <div id="phone">
-          <icon icon="mobile-screen" />
-          <icon id="rotate" icon="rotate-left" />
+  <div>
+    <p v-if="!connected">The server is still waking up.</p>
+    <template v-if="connected">
+      <p id="test"></p>
+      <Transition name="fade">
+        <Alert v-if="notAvailable" class="error" @closeAlert="notAvailable = false">Sorry, this game does not exist
+          anymore.
+        </Alert>
+      </Transition>
+      <Transition name="fade">
+        <div id="blocker" v-if="viewportOrientation.includes('portrait')">
+          <p>Please rotate your device into landscape mode.</p>
+          <div id="phone">
+            <icon icon="mobile-screen" />
+            <icon id="rotate" icon="rotate-left" />
+          </div>
         </div>
+      </Transition>
+      <Transition name="header" v-if="allowed">
+        <Header v-if="showHeader" :username="clients.find(index => index.id === $store.state.userID)?.name" />
+      </Transition>
+      <div id="router" v-if="allowed">
+        <router-view v-slot="{ Component }">
+          <Transition name="fade" mode="out-in">
+            <component :is="Component" :clients="clients" @showHeader="(show: boolean) => showHeader = show" />
+          </Transition>
+        </router-view>
       </div>
-    </Transition>
-    <Transition name="header" v-if="allowed">
-      <Header v-if="showHeader" :username="clients.find(index => index.id === $store.state.userID)?.name" />
-    </Transition>
-    <div id="router" v-if="allowed">
-      <router-view v-slot="{ Component }">
-        <Transition name="fade" mode="out-in">
-          <component :is="Component" :clients="clients" @showHeader="(show: boolean) => showHeader = show" />
-        </Transition>
-      </router-view>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -75,7 +75,6 @@
       },
 
       disconnect() {
-        alert("disconnected!")
         this.$router.go(0)
       },
 
@@ -187,14 +186,21 @@
     }
   }
 
-  #router {
-    overflow: hidden;
-    flex-grow: 1;
-
-    >div:last-child {
-      // router container
-      padding: v.$viewport-padding-vertical calc(2*v.$viewport-padding-horizontal);
+  #app {
+    >div {
       height: 100%;
+    }
+
+    #router {
+      overflow: hidden;
+      flex-grow: 1;
+
+      >div:last-child {
+        // router container
+        padding: v.$viewport-padding-vertical calc(2*v.$viewport-padding-horizontal);
+        height: 100%;
+
+      }
     }
   }
 

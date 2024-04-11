@@ -5,7 +5,7 @@
         v-for="(player, index) in players.filter((index: Player) => index.id !== $store.state.userID)" :key="index">
         <b>{{ player.name }}</b>
         <p v-if="player.left">left the game...</p>
-        <div v-else-if="player.rank > 0">
+        <div id="rank" :class="nth(player.rank)" v-else-if="player.rank > 0">
           <h2>{{ player.rank }}</h2>
           <p>{{ nth(player.rank) }}</p>
           <icon :icon="rankIcon(player.rank)" />
@@ -13,6 +13,11 @@
         <div v-else>
           <h2 v-if="player.hand">{{ player.hand.length }}</h2>
           <p>cards left</p>
+        </div>
+        <div id="rank" :class="nth(player.rank)">
+          <h2>1</h2>
+          <p>st</p>
+          <icon :icon="rankIcon(1)" />
         </div>
         <Badge v-if="player.turn">current turn</Badge>
       </div>
@@ -36,10 +41,15 @@
           <div>
             <Badge>you</Badge><b> {{ player?.name }}</b>
           </div>
-          <div v-if="player.rank > 0">
+          <div id="rank" :class="nth(player.rank)" v-if="player.rank > 0">
             <h2>{{ player.rank }}</h2>
             <p>{{ nth(player.rank) }}</p>
             <icon :icon="rankIcon(player.rank)" />
+          </div>
+          <div id="rank" :class="nth(player.rank)">
+            <h2>1</h2>
+            <p>st</p>
+            <icon :icon="rankIcon(1)" />
           </div>
           <Badge v-if="player?.turn">current turn</Badge>
         </div>
@@ -143,41 +153,33 @@
     watch: {
       ready(isReady) {
         if (isReady) {
-          console.log("READY!")
-
-          // reset any changes from the last round
-          /*
-          this.players = []
-          this.revolution = false
-          this.lastPlayed = {} as Player
-          this.currentCards = []
-          */
-
           this.$socket.emit("setLoaded", this.roomID, this.$store.state.userID)
         }
       },
 
       playersLeft(playersLeft) {
-        switch (playersLeft) {
-          case 0: {
-            // end the game after a short delay (every player has been placed)
-            setTimeout(() => {
-              this.playing = false
-              this.$emit("closeGame")
-            }, this.delayTime)
+        if (this.playing) {
+          switch (playersLeft) {
+            case 0: {
+              // end the game after a short delay (every player has been placed)
+              setTimeout(() => {
+                this.playing = false
+                this.$emit("closeGame")
+              }, this.delayTime)
 
-            // no more turns
-            this.players.forEach((player: Player) => {
-              player.turn = false
-            })
-            break
-          }
-          case 1: {
-            // give the last available place to the last player
-            const lastPlayer = this.players.find((index: Player) => index.rank === 0 && !index.left)
-            // only one player left after game has started?
-            if (lastPlayer && this.playing) {
-              lastPlayer.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
+              // no more turns
+              this.players.forEach((player: Player) => {
+                player.turn = false
+              })
+              break
+            }
+            case 1: {
+              // give the last available place to the last player
+              const lastPlayer = this.players.find((index: Player) => index.rank === 0 && !index.left)
+              // only one player left after game has started?
+              if (lastPlayer) {
+                lastPlayer.rank = this.players.filter((index: Player) => index.rank > 0).length + 1
+              }
             }
           }
         }
@@ -203,13 +205,8 @@
           name: player.name
         })
 
-        console.log(this.players)
-        console.log(this.players.length)
-
-        console.log(this.lobby?.length, userID === this.$store.state.userID)
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
-          console.log("ich gebe die Karten aus.")
           this.$socket.emit("getCards", this.roomID)
         }
       },
@@ -516,6 +513,24 @@
 
       >svg {
         margin-bottom: 0.25em;
+      }
+    }
+
+    #rank {
+      &.st {
+        color: #F2C261;
+      }
+
+      &.nd {
+        color: #C2F2C2;
+      }
+
+      &.rd {
+        color: #F2A191;
+      }
+
+      &.th {
+        color: #C7B8E5;
       }
     }
 

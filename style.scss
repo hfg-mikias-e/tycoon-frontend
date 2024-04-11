@@ -144,7 +144,8 @@ input {
 input {
   background: none;
   border: none;
-  border-bottom: 1px solid v.$text-color;
+  border-radius: 0;
+  border-bottom: 2px solid v.$text-color;
   color: v.$text-color;
 }
 

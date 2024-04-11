@@ -12,9 +12,9 @@
               <p>Invite your friends to this party over the following link:</p>
               <div id="link">
                 <input readonly :value="link.pathname">
-                <Button v-if="!shareable" class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
+                <Button class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
                   @click="copyToClipboard">Copy</Button>
-                <Button v-else class="secondary" icon="share" @click="shareLink">Share</Button>
+                <Button v-if="shareable" class="secondary" icon="share" @click="shareLink">Share</Button>
               </div>
               <p class="note">Note that you can currently invite
                 <span v-if="maxPlayers - players.length === 0">no</span>
@@ -26,8 +26,6 @@
               <p>This is an open game which can be joined by anyone!</p>
               <p class="note">Note that this game needs 4 players before the it can be started.</p>
             </div>
-
-            <p>UPDATE #3</p>
 
             <TransitionGroup name="fade">
               <div v-if="showCounter">
@@ -56,8 +54,8 @@
           </div>
         </div>
       </Transition>
-      <Transition name="fade" mode="out-in">
-        <Play v-if="showCounter" v-show="started" :lobby="players" :roomID="roomID" :ready="started" @closeGame="resetGame" />
+      <Transition name="fade" mode="out-in" v-if="showCounter">
+        <Play v-show="started" :lobby="players" :roomID="roomID" :ready="started" @closeGame="resetGame" />
       </Transition>
     </template>
     <div v-else>
@@ -148,9 +146,9 @@
         })
 
         // reset all to default value
+        this.counter = 3
         this.started = false
         this.showCounter = false
-        this.counter = 3
         this.$emit("showHeader", true)
 
         this.$socket.emit('startGame', this.roomID, false)
@@ -159,7 +157,7 @@
       copyToClipboard() {
         navigator.clipboard.write([
           new ClipboardItem({
-            "text/html": Promise.resolve(`${this.shareContent.text}<br/><a>${this.shareContent.url}</a>`),
+            "text/html": Promise.resolve(`${this.shareContent.text}<br/><a>${this.shareContent.url}</a>`)
           }),
         ]);
       },
@@ -200,6 +198,7 @@
       if (this.entry) {
         this.$socket.emit("moveRoom", this.roomID, "leave")
       }
+
       this.$emit("showHeader", true)
     }
   })
