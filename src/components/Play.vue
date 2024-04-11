@@ -11,7 +11,7 @@
           <icon :icon="rankIcon(player.rank)" />
         </div>
         <div v-else>
-          <h2>{{ player.hand.length }}</h2>
+          <h2 v-if="player.hand">{{ player.hand.length }}</h2>
           <p>cards left</p>
         </div>
         <Badge v-if="player.turn">current turn</Badge>
@@ -199,7 +199,6 @@
           ...this.undefinedPlayer,
           id: player.id,
           name: player.name,
-          hand: []
         })
 
         console.log(this.players)
