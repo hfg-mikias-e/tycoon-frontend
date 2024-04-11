@@ -157,8 +157,7 @@
       copyToClipboard() {
         navigator.clipboard.write([
           new ClipboardItem({
-            "text/plain": Promise.resolve(this.shareContent.text),
-            "text/html": Promise.resolve(`<br/><a>${this.shareContent.url}</a>`),
+            "text/html": Promise.resolve(`${this.shareContent.text}<br/><a>${this.shareContent.url}</a>`),
           }),
         ]);
       },
