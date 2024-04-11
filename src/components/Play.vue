@@ -192,10 +192,10 @@
     },
 
     sockets: {
-      addLoaded(userID: string) {
+      async addLoaded(userID: string) {
         const player = this.lobby?.find((index: Player) => index.id === userID)
 
-        this.players.push({
+        await this.players.push({
           ...this.undefinedPlayer,
           id: player.id,
           name: player.name,
