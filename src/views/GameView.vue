@@ -11,7 +11,7 @@
             <div v-if="$route.name === 'party'">
               <p>Invite your friends to this party over the following link:</p>
               <div id="link">
-                <input readonly :value="link.pathname">
+                <input readonly :value="link">
                 <Button class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
                   @click="copyToClipboard">Copy</Button>
                 <Button v-if="shareable" class="secondary" icon="share" @click="shareLink">Share</Button>
@@ -99,7 +99,7 @@
       return {
         players: [] as Player[],
         maxPlayers: 4,
-        link: window.location,
+        link: window.location.href,
         copied: false,
 
         counter: 3,
@@ -111,7 +111,7 @@
         shareable: false,
         shareContent: {
           text: "Let's play Tycoon together! Join my party now (WebApp users: if the following link does not open correctly, copy it to your clipboard and hit \"join someone's party\" inside the App)!",
-          url: window.location.href
+          url: String(this.link)
         }
       }
     },
@@ -155,11 +155,7 @@
       },
 
       copyToClipboard() {
-        navigator.clipboard.write([
-          new ClipboardItem({
-            "text/html": Promise.resolve(`${this.shareContent.text}<br/><a>${this.shareContent.url}</a>`)
-          }),
-        ]);
+        navigator.clipboard.writeText(this.shareContent.text + " " + this.link)
       },
 
       shareLink() {
