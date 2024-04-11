@@ -12,9 +12,9 @@
               <p>Invite your friends to this party over the following link:</p>
               <div id="link">
                 <input readonly :value="link.pathname">
-                <Button class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
+                <Button v-if="!shareable" class="secondary" :icon="copied ? 'check' : 'fa-regular fa-clipboard'"
                   @click="copyToClipboard">Copy</Button>
-                <Button v-if="shareable" class="secondary" icon="share" @click="shareLink">Share</Button>
+                <Button v-else class="secondary" icon="share" @click="shareLink">Share</Button>
               </div>
               <p class="note">Note that you can currently invite
                 <span v-if="maxPlayers - players.length === 0">no</span>
