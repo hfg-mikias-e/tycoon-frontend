@@ -27,7 +27,7 @@
               <p class="note">Note that this game needs 4 players before the it can be started.</p>
             </div>
 
-            <p>UPDATE #1</p>
+            <p>UPDATE #2</p>
 
             <TransitionGroup name="fade">
               <div v-if="showCounter">

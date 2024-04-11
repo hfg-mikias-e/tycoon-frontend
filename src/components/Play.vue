@@ -198,7 +198,7 @@
         this.players.push({
           ...this.undefinedPlayer,
           id: player.id,
-          name: player.name,
+          name: player.name
         })
 
         console.log(this.players)

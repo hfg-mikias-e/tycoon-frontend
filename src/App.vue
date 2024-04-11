@@ -75,6 +75,7 @@
       },
 
       disconnect() {
+        alert("disconnected!")
         this.$router.go(0)
       },
 
