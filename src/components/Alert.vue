@@ -38,18 +38,22 @@
     left: 50%;
     transform: translateX(-50%);
     padding: 0.75em 1em;
-    color: v.$text-color;
-    background-color: v.$background-color;
+    color: v.$background-color;
+    background-color: v.$text-color;
     border-radius: 0.25em;
     gap: 0.5em !important;
     //white-space: nowrap;
 
+    &.success {
+      background-color: v.$second-place-color;
+    }
+
     &.warning {
-      background-color: v.$secondary-color;
+      background-color: v.$first-place-color;
     }
 
     &.error {
-      background-color: v.$secondary-color;
+      background-color: v.$primary-color;
     }
 
     svg#close {

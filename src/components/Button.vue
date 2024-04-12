@@ -33,11 +33,11 @@
     }
 
     &.primary {
-      background-color: white;
+      background-color: v.$text-color;
       color: v.$background-color;
 
       &:enabled:hover {
-        background: v.$secondary-color;
+        background: rgba(v.$primary-color, 0.4);
       }
 
       &:enabled:active {
@@ -46,13 +46,13 @@
     }
 
     &.secondary {
-      color: white;
+      color: v.$text-color;
       border: 2px solid v.$text-color;
       background: inherit;
 
       &:enabled:hover {
-        color: v.$secondary-color;
-        border-color: rgba(v.$secondary-color, 0.6);
+        color: rgba(v.$primary-color, 0.4);
+        border-color: rgba(v.$primary-color, 0.25);
       }
 
       &:enabled:active {
