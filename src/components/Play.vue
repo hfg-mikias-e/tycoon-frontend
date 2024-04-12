@@ -1,5 +1,5 @@
 <template>
-  <div id="play" v-if="playing" style="border: 5px solid green;">
+  <div id="play" v-if="playing">
     <div id="playerSlots">
       <div id="slot" :class="{ turn: player.turn, left: player.left, done: player.rank > 0 }"
         v-for="(player, index) in players.filter((index: Player) => index.id !== $store.state.userID)" :key="index">
@@ -24,8 +24,6 @@
     </div>
 
     <div id="gameSlot">
-      <p>{{ players }}</p>
-      <p>yo: {{ player }}</p>
       <div id="cardRow">
         <TransitionGroup name="card">
           <div v-for="card in currentCards" :key="card.sign + card.num">
