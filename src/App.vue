@@ -198,8 +198,9 @@
       >div:last-child {
         // router container
         padding: v.$viewport-padding-vertical calc(2*v.$viewport-padding-horizontal);
+        align-items: center;
+        justify-content: center;
         height: 100%;
-
       }
     }
   }

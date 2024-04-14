@@ -1,7 +1,7 @@
 <template>
   <button>
-    <icon v-if="icon" :icon="icon" />
     <slot></slot>
+    <icon v-if="icon" :icon="icon" />
   </button>
 </template>
 
@@ -20,15 +20,18 @@
   @use "variables" as v;
 
   button {
-    font-size: 1.125em;
-    transition: border 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-out;
 
     &.primary,
     &.secondary {
-      padding: 0.75em 1em;
+      padding: 0 1.5em;
+      height: 3.25em;
+
+      svg {
+        height: 1.5em;
+      }
 
       &:disabled {
-        opacity: 0.2;
+        opacity: 0.25;
       }
     }
 
@@ -36,8 +39,10 @@
       background-color: v.$text-color;
       color: v.$background-color;
 
-      &:enabled:hover {
-        background: rgba(v.$primary-color, 0.4);
+      @media (hover: hover) {
+        &:enabled:hover {
+          background: rgba(v.$primary-color, 0.4);
+        }
       }
 
       &:enabled:active {
@@ -47,17 +52,19 @@
 
     &.secondary {
       color: v.$text-color;
-      border: 2px solid v.$text-color;
+      border: 2px solid rgba(v.$text-color, 0.8);
       background: inherit;
 
-      &:enabled:hover {
-        color: rgba(v.$primary-color, 0.4);
-        border-color: rgba(v.$primary-color, 0.25);
+      @media (hover: hover) {
+        &:enabled:hover {
+          color: rgba(v.$primary-color, 0.4);
+          border-color: rgba(v.$primary-color, 0.25);
+        }
       }
 
       &:enabled:active {
         color: v.$primary-color;
-        border-color: rgba(v.$primary-color, 0.6);
+        border-color: rgba(v.$primary-color, 0.8);
       }
     }
   }

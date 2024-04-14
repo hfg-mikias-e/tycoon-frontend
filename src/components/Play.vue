@@ -14,16 +14,14 @@
           <h2 v-if="player.hand">{{ player.hand.length }}</h2>
           <p>cards left</p>
         </div>
-        <div id="rank" :class="nth(player.rank)">
-          <h2>1</h2>
-          <p>st</p>
-          <icon :icon="rankIcon(1)" />
-        </div>
         <Badge v-if="player.turn">current turn</Badge>
       </div>
     </div>
 
     <div id="gameSlot">
+      <div v-if="specialCase!== ''">
+        <p>some special case</p>
+      </div>
       <div id="cardRow">
         <TransitionGroup name="card">
           <div v-for="card in currentCards" :key="card.sign + card.num">
@@ -31,6 +29,8 @@
           </div>
         </TransitionGroup>
       </div>
+      <h2 v-if="revolution">Revolution</h2>
+      <h2 v-if="allPass">All passed.</h2>
     </div>
 
     <div id="userSlot">
@@ -45,11 +45,6 @@
             <h2>{{ player.rank }}</h2>
             <p>{{ nth(player.rank) }}</p>
             <icon :icon="rankIcon(player.rank)" />
-          </div>
-          <div id="rank" :class="nth(player.rank)">
-            <h2>1</h2>
-            <p>st</p>
-            <icon :icon="rankIcon(1)" />
           </div>
           <Badge v-if="player?.turn">current turn</Badge>
         </div>
@@ -128,10 +123,10 @@
         lastPlayed: {} as Player,
 
         playing: false,
+        allPass: false,
         revolution: false,
         specialCase: "",
         delayTime: 3000,
-        allPass: false,
 
         // cards that were last played
         currentCards: [] as Card[],
@@ -205,8 +200,6 @@
           name: player.name
         })
 
-        console.log(this.players)
-
         if (this.players.length === this.lobby?.length && userID === this.$store.state.userID) {
           // all players games have loaded, start the game by giving out cards (the last client triggers this action).
           this.$socket.emit("getCards", this.roomID)
@@ -216,6 +209,7 @@
       giveCards(handouts: [Array<Card[]>, number]) {
         const hands = handouts[0]
         const firstTurn = handouts[1]
+        console.log(handouts)
 
         this.players.forEach((player: Player, index: number) => {
           player.hand = hands[index]
