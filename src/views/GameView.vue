@@ -11,56 +11,57 @@
               <div id="lobbySlots">
                 <div id="slot" class="container" :class="{ ready: player.ready }" v-for="(player, index) in players"
                   :key="index">
-                  <Badge v-if="player.id === $store.state.userID">YOU</Badge>
-                  <p>{{ player.name }}</p>
-                  <Badge v-if="player.ready">READY!</Badge>
-                  <p v-else>not ready yet</p>
+                  <div>
+                    <Badge v-if="player.id === $store.state.userID">YOU</Badge>
+                    <b>{{ player.name }}</b>
+                  </div>
+                  <h4 v-if="player.ready">ready!</h4>
+                  <h4 v-else>not ready yet</h4>
                 </div>
                 <div id="slot" class="container empty" v-for="index in (maxPlayers - players.length) " :key="index">
-                  waiting ...
+                  <h4>wait for a player ...</h4>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="container">
+          <div class="container" id="gameInfo">
             <h2 class="title">Game <span class="accent">#{{ roomID }}</span></h2>
-            <template v-if="$route.name === 'party'">
-              <div>
-                <p>Invite your friends over the following link!</p>
-                <p class="note">Note that you can currently invite
-                  <span v-if="maxPlayers - players.length === 0">no</span>
-                  <b v-else>{{ maxPlayers - players.length }}</b>
-                  more player<span v-if="maxPlayers - players.length !== 1">s</span>.
-                </p>
-              </div>
-              <div id="link">
+            <Transition name="fade" mode="out-in">
+              <div v-if="$route.name === 'party' && !showCounter">
                 <div>
-                  <input readonly :value="link" />
-                  <Button :icon="copied ? 'check' : 'fa-regular fa-clipboard'" @click="copyToClipboard">Copy</Button>
+                  <p>Invite your friends over the following link!</p>
+                  <p class="note">Note that you can currently invite
+                    <span v-if="maxPlayers - players.length === 0">no</span>
+                    <b v-else>{{ maxPlayers - players.length }}</b>
+                    more player<span v-if="maxPlayers - players.length !== 1">s</span>.
+                  </p>
                 </div>
-                <Button v-if="shareable" class="secondary" icon="share" @click="shareLink">Share</Button>
+                <div id="link">
+                  <div>
+                    <input readonly :value="link" />
+                    <Button :icon="copied ? 'check' : 'fa-regular fa-clipboard'" @click="copyToClipboard">Copy</Button>
+                  </div>
+                  <Button v-if="shareable" class="secondary" icon="share" @click="shareLink">Share</Button>
+                </div>
               </div>
-            </template>
-            <template v-else>
-              <div>
-                <p>This is an open game which can be joined by anyone!</p>
-                <p class="note">Note that this game needs 4 players before the it can be started.</p>
+              <div v-else-if="!showCounter">
+                <div>
+                  <p>This is an open game which can be joined by anyone!</p>
+                  <p class="note">Note that this game needs 4 players before the it can be started.</p>
+                </div>
               </div>
-            </template>
+              <div v-else>
+                <h3>The game starts in...</h3>
+                <Counter :number="counter" />
+              </div>
+            </Transition>
             <div id="ready">
               <b>The game will start when everyone is ready.</b>
               <Button class="primary" :disabled="showCounter"
-                @click="$socket.emit('setReady', roomID, $store.state.userID, !players.find((player: Player) => player.id === $store.state.userID)?.ready)">
-                <span v-if="showCounter">The game starts in...
-                  <Counter :number="counter" />
-                </span>
-                <span v-else>I'm ready!
-                  <icon v-if="!players.find((player: Player) => player.id === $store.state.userID)?.ready"
-                    icon="circle-dot" />
-                  <icon v-else icon="circle-check" />
-                </span>
-              </Button>
+                :icon="players.find((player: Player) => player.id === $store.state.userID)?.ready ? 'circle-check' : 'circle-dot'"
+                @click="$socket.emit('setReady', roomID, $store.state.userID, !players.find((player: Player) => player.id === $store.state.userID)?.ready)">I'm
+                ready!</Button>
             </div>
           </div>
         </div>
@@ -218,22 +219,32 @@
     #lobby {
       flex-direction: row;
       justify-content: space-between;
-      gap: calc(2*v.$viewport-padding-horizontal);
+      gap: v.$viewport-padding-horizontal;
       width: 100%;
       height: 100%;
 
       >div {
         flex-basis: 100%;
-        gap: calc(0.5*v.$viewport-padding-vertical);
         justify-content: center;
 
-        &:first-child>div {
-          max-height: 100%;
-          display: block;
+        &:first-child {
+          @media (max-height: 400px) {
+            padding-bottom: v.$viewport-padding-vertical;
+          }
+
+          >div {
+            max-height: 100%;
+            display: block;
+          }
         }
 
         &:last-child {
           align-self: center;
+
+          @media (max-height: 400px) {
+            align-self: flex-end;
+            border-radius: 0.75em 0.75em 0 0;
+          }
         }
 
         .title {
@@ -278,6 +289,10 @@
           width: 100%;
         }
 
+        b {
+          text-align: center;
+        }
+
         span {
           height: 1em;
           display: inline-flex;
@@ -302,8 +317,41 @@
 
       #slot {
         aspect-ratio: 1 / 1;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
         padding: 1em;
+        gap: 0.75em;
+
+        &.empty {
+          background: rgba(v.$background-color, 0.25);
+        }
+
+        >h4 {
+          text-align: center;
+        }
+
+        >div {
+          flex-direction: row;
+          max-width: 100%;
+          gap: 0.25em;
+
+          >b {
+            text-overflow: ellipsis;
+            overflow: auto;
+          }
+        }
+      }
+    }
+  }
+
+  #gameInfo {
+    >div:first-of-type {
+      gap: inherit;
+
+      >* {
+        width: 100%;
+        text-align: center;
       }
     }
   }

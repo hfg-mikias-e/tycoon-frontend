@@ -48,7 +48,7 @@
     flex-direction: row;
     width: 100%;
     padding: v.$viewport-padding-vertical v.$viewport-padding-horizontal;
-    padding-bottom: 0;
+    //padding-bottom: 0;
     align-items: flex-end;
     z-index: 5;
 
@@ -77,6 +77,8 @@
     }
 
     #logo {
+      width: fit-content;
+      
       >div:not(:last-child) {
         position: absolute;
         bottom: 100%;

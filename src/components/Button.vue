@@ -20,11 +20,9 @@
   @use "variables" as v;
 
   button {
-
     &.primary,
     &.secondary {
-      padding: 0 1.5em;
-      height: 3.25em;
+      padding: 0.75em 1.25em;
 
       svg {
         height: 1.5em;

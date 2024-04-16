@@ -29,6 +29,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   text-transform: uppercase;
+  font-weight: 600;
   gap: 0.25em;
 }
 </style>

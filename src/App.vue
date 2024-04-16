@@ -3,11 +3,13 @@
     <p v-if="!connected">The server is still waking up.</p>
     <template v-if="connected">
       <p id="test"></p>
+      
       <Transition name="fade">
         <Alert v-if="notAvailable" class="error" @closeAlert="notAvailable = false">Sorry, this game does not exist
           anymore.
         </Alert>
       </Transition>
+
       <Transition name="fade">
         <div id="blocker" v-if="viewportOrientation.includes('portrait')">
           <p>Please rotate your device into landscape mode.</p>
@@ -17,12 +19,13 @@
           </div>
         </div>
       </Transition>
+
       <Transition name="header" v-if="allowed">
         <Header v-if="showHeader" :username="clients.find(index => index.id === $store.state.userID)?.name" />
       </Transition>
       <div id="router" v-if="allowed">
         <router-view v-slot="{ Component }">
-          <Transition name="fade" mode="out-in">
+          <Transition name="fade" mode="out-in" appear>
             <component :is="Component" :clients="clients" @showHeader="(show: boolean) => showHeader = show" />
           </Transition>
         </router-view>
@@ -102,30 +105,6 @@
       })
     },
   })
-
-  /*
-  export default {
-    setup() {
-      //socket.connect()
-  
-      const connected = ref(false)
-      const allowed = ref(false)
-      const clients = ref([])
-  
-      socket.on("connect", () => {
-        console.log("ELFOSIHGSBOEIH")
-      })
-  
-      return {
-        Button,
-        Header,
-        connected,
-        allowed,
-        clients
-      }
-    }
-  }
-  */
 </script>
 
 <style lang="scss">
@@ -192,15 +171,20 @@
     }
 
     #router {
-      overflow: hidden;
+      height: 0;
       flex-grow: 1;
 
       >div:last-child {
         // router container
-        padding: v.$viewport-padding-vertical calc(2*v.$viewport-padding-horizontal);
+        padding: v.$viewport-padding-vertical v.$viewport-padding-horizontal;
         align-items: center;
         justify-content: center;
         height: 100%;
+
+        @media (max-height: 400px) {
+          padding-bottom: 0;
+          justify-content: flex-end;
+        }
       }
     }
   }

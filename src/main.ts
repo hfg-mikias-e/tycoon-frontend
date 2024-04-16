@@ -15,7 +15,7 @@ library.add(fas, far, fab)
 createApp(App)
   .component("icon", FontAwesomeIcon)
   .use(new VueSocketIO({
-    connection: process.env.VUE_APP_SOCKET_ENDPOINT?.replace("127.0.0.1", window.location.hostname).replace("localhost", window.location.hostname)
+    connection: process.env.VUE_APP_SOCKET_ENDPOINT?.replace("127.0.0.1", window.location.hostname)
   }))
   .use(store)
   .use(router)

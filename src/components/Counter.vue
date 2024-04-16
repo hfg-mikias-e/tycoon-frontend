@@ -26,6 +26,7 @@
 
 	#counter {
 		width: fit-content;
+    align-items: center;
 
 		div,
 		div>h2 {
