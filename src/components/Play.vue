@@ -19,9 +19,29 @@
     </div>
 
     <div id="gameSlot">
-      <div v-if="specialCase!== ''">
-        <p>some special case</p>
+      <div>
+        <Transition name="status">
+          <div v-if="specialCase !== ''" class="status left">
+            <template v-if="specialCase === 'threeSpades'">
+              <icon icon="flag"/>
+              <h2>3-Of-Spades</h2>
+              <h3>This card beats the Joker!</h3>
+            </template>
+            <template v-else-if="specialCase === 'eightStop'">
+              <icon icon="hand"/>
+              <h2>Eight-Stop</h2>
+              <h3>Starts a new turn instantly!</h3>
+            </template>
+            <template v-else-if="specialCase === 'revolution'">
+              <icon :icon="revolution ? 'sync-alt' : 'sync'"/>
+              <h2><span v-if="revolution">Counter-</span>Revolution</h2>
+              <h3 v-if="revolution">Negates the Revolution!</h3>
+              <h3 v-else>Reverses all card values!</h3>
+            </template>
+          </div>
+        </Transition>
       </div>
+
       <div id="cardRow">
         <TransitionGroup name="card">
           <div v-for="card in currentCards" :key="card.sign + card.num">
@@ -29,8 +49,22 @@
           </div>
         </TransitionGroup>
       </div>
-      <h2 v-if="revolution">Revolution</h2>
-      <h2 v-if="allPass">All passed.</h2>
+
+      <Transition name="card">
+        <div v-if="currentCards.length === 0 && allPass" class="status">
+          <h3>Everyone passed.</h3>
+        </div>
+      </Transition>
+
+      <div>
+        <Transition name="status">
+          <div v-if="revolution" class="status right">
+            <icon :icon="'sync-alt'" />
+            <h2>Revolution</h2>
+            <h3>Card strength reversed.</h3>
+          </div>
+        </Transition>
+      </div>
     </div>
 
     <div id="userSlot">
@@ -414,6 +448,7 @@
     height: 100vh;
     width: 100vw;
     justify-content: space-between;
+    align-items: center;
   }
 
   #playerSlots,
@@ -421,6 +456,55 @@
     flex-direction: row;
     justify-content: center;
     height: fit-content;
+    width: fit-content;
+  }
+
+  #gameSlot {
+    align-items: center;
+    width: 100%;
+
+    // status
+    >div:first-child,
+    >div:last-child {
+      flex-grow: 1;
+      justify-content: center;
+    }
+
+    .status {
+      border-radius: 4em;
+      padding: 1.75em 2.5em;
+      background-color: v.$container-color;
+      align-items: center;
+      width: fit-content;
+      position: absolute;
+      gap: 0.25em;
+      z-index: -1;
+
+      >svg {
+        position: absolute;
+        height: 2.5em;
+        top: 0;
+        transform: translateY(-50%);
+      }
+
+      h2,
+      h3 {
+        text-align: center;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+
+      &.left {
+        margin-right: 3vw;
+      }
+
+      &.right,
+      &.left {
+        align-self: flex-end;
+        border-radius: 4em 0 0 4em;
+        padding: 2.25em 1.25em 1.75em 2.5em;
+      }
+    }
   }
 
   #playerSlots {
@@ -475,13 +559,12 @@
   }
 
   #cardRow {
-    width: 100%;
-    flex-grow: 1;
     justify-content: center;
     align-items: center;
     flex-direction: row;
     overflow: visible;
     max-height: 20vh;
+    min-width: 6vw;
 
     >div {
       max-width: 6vw;
@@ -581,5 +664,16 @@
 
   .card-enter-from {
     transform: translateY(-1em);
+  }
+
+  .status-enter-active,
+  .status-leave-active {
+    transition: all 0.25s ease-in-out;
+  }
+
+  .status-enter-from,
+  .status-leave-to {
+    opacity: 0;
+    transform: translateX(100%);
   }
 </style>

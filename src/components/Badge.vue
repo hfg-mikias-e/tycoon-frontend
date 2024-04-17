@@ -31,5 +31,6 @@ export default defineComponent({
   text-transform: uppercase;
   font-weight: 600;
   gap: 0.25em;
+  white-space: nowrap;
 }
 </style>
