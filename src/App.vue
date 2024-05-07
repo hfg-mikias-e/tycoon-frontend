@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <p v-if="!connected">The server is still waking up.</p>
-    <template v-if="connected">
-      <p id="test"></p>
-      
+  <TransitionGroup name="fade" mode="out-in">
+    <div v-if="!connected" id="waiting">
+      <p>The server is still waking up, please wait a moment...</p>
+    </div>
+    <div v-else>
       <Transition name="fade">
         <Alert v-if="notAvailable" class="error" @closeAlert="notAvailable = false">Sorry, this game does not exist
           anymore.
@@ -30,8 +30,8 @@
           </Transition>
         </router-view>
       </div>
-    </template>
-  </div>
+    </div>
+  </TransitionGroup>
 </template>
 
 <script lang="ts">
@@ -111,8 +111,9 @@
   @use "variables" as v;
   @import "./style.scss";
 
-  #test {
-    position: absolute;
+  #waiting {
+    justify-content: center;
+    align-items: center;
   }
 
   #blocker {
