@@ -11,4 +11,4 @@ Requires [Node.js](https://nodejs.org/) version 16 or higher
 
 ### associated repositories
 
-- [Bites Backend](https://github.com/hfg-mikias-e/tycoon-backend).
+- [Tycoon Backend](https://github.com/hfg-mikias-e/tycoon-backend).
