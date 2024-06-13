@@ -386,8 +386,12 @@
           }
 
           // exception: only 3-of-Spades can be played on a joker
-          if (this.currentCards.length === 1 && this.currentCards[0].num === 16 && num === 3 && sign === "D") {
-            return false
+          if(this.currentCards.length === 1 && this.currentCards[0].num === 16) {
+            if(num === 3 && sign === "D") {
+              return false
+            } else {
+              return true
+            }
           }
 
           // disable lower (/higher if revolution) cards
@@ -407,6 +411,7 @@
                 }
               })
             }
+            
             return jokerAvailable
           }
         }
